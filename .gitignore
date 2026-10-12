@@ -17,3 +17,6 @@ research/reference-runtime.js
 *.log
 research/hover-sequence/
 research/ripplix-*.html
+
+.vercel
+.env*
