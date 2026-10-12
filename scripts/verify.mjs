@@ -29,9 +29,9 @@ for (const config of [
   check(`${name}: full name fits its container`, await page.locator('.hero-name').evaluate(el => el.scrollWidth <= el.clientWidth + 1));
   await page.screenshot({ path: `${output}/${name}.png` });
   const photoSwitch = await page.locator('.portrait-photo-switch').isVisible();
-  await page.getByRole('button', { name: photoSwitch ? 'Switch to work mode' : 'SWITCH TO WORK MODE' }).click();
+  await page.getByRole('button', { name: photoSwitch ? 'SWITCH TO CASUAL MODE' : 'SWITCH TO CASUAL MODE' }).click();
   await page.waitForTimeout(800);
-  check(`${name}: portrait switch`, await page.getByRole('button', { name: photoSwitch ? 'Back to casual portrait' : 'BACK TO CASUAL' }).getAttribute('aria-pressed') === 'true');
+  check(`${name}: portrait switch`, await page.getByRole('button', { name: photoSwitch ? 'back to work portrait' : 'back to work' }).getAttribute('aria-pressed') === 'true');
   if (name === 'desktop') await page.screenshot({ path: `${output}/portrait-work.png` });
   await page.getByRole('button', { name: 'Open navigation' }).click();
   await page.waitForTimeout(1300);

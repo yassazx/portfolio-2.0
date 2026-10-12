@@ -64,10 +64,10 @@ for(const config of [
     check('Reduced motion leaves blob and contours still',await d()==='M0,0Z'&&originalLine===await contour.getAttribute('d'));
     check('Reduced motion retains static signature',await page.locator('.signature-static').count()===1);
   }
-  await page.getByRole('button',{name:photoSwitch?'Switch to work mode':'SWITCH TO WORK MODE'}).click();
+  await page.getByRole('button',{name:photoSwitch?'SWITCH TO CASUAL MODE':'SWITCH TO CASUAL MODE'}).click();
   await page.waitForTimeout(name==='reduced'?80:1550);
   check(`${name}: work toggle fills mask`,await radius()>=2099);
-  await page.getByRole('button',{name:photoSwitch?'Back to casual portrait':'BACK TO CASUAL'}).click();
+  await page.getByRole('button',{name:photoSwitch?'back to work portrait':'back to work'}).click();
   await page.waitForTimeout(name==='reduced'?80:1550);
   check(`${name}: casual toggle clears mask`,await radius()===0);
   if(name!=='reduced'){
@@ -90,7 +90,7 @@ for(const config of [
     await page.waitForTimeout(500);
     const returned=await page.locator('.hero-portrait-reveal').evaluate(el=>el.getBoundingClientRect().top);
     check(`${name}: reverse scroll restores initial geometry`,Math.abs(returned-initialTop)<1);
-    check(`${name}: controls return after reverse scroll`,await page.getByRole('button',{name:photoSwitch?'Switch to work mode':'SWITCH TO WORK MODE'}).isVisible());
+    check(`${name}: controls return after reverse scroll`,await page.getByRole('button',{name:photoSwitch?'SWITCH TO CASUAL MODE':'SWITCH TO CASUAL MODE'}).isVisible());
     await page.locator('#about').evaluate(el=>el.scrollIntoView({behavior:'instant'}));
     await page.waitForTimeout(400);
     const offscreen=await d(),lineOffscreen=await contour.getAttribute('d');

@@ -178,7 +178,7 @@
       "kind": "button",
       "refersTo": "button-portrait",
       "description": "Paper control with the implemented pressed-state switch.",
-      "html": "<button class=\"ds-switch\" aria-pressed=\"true\">BACK TO CASUAL<span><i></i></span></button>",
+      "html": "<button class=\"ds-switch\" aria-pressed=\"true\">back to work<span><i></i></span></button>",
       "css": ".ds-switch{display:inline-flex;align-items:center;gap:16px;min-height:44px;padding:12px 15px;border:0;border-radius:7px;background:var(--paper,#f5f5ed);color:var(--ink,#292f22);font:600 13px var(--condensed,\"Barlow Condensed\",sans-serif);cursor:pointer}.ds-switch>span{display:block;width:24px;height:11px;padding:2px;border:1px solid currentColor;border-radius:20px}.ds-switch i{display:block;width:11px;height:11px;border-radius:50%;background:currentColor;transition:transform .3s}.ds-switch[aria-pressed=true]>span{background:var(--lime,#d2ff00)}.ds-switch[aria-pressed=true] i{transform:translateX(12px)}.ds-switch:focus-visible{outline:3px solid #61751b;outline-offset:6px}@media(prefers-reduced-motion:reduce){.ds-switch *{transition-duration:.01ms!important}}"
     },
     {
