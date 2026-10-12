@@ -6,7 +6,7 @@ import { blobPath } from './organic';
 export default function PortraitSequence({ main, alternate, ready, reduced, hovered, locked, suspended, pointer, scrollProgress }) {
   const root=useRef(),windowPath=useRef(),controls=useRef();
   const unique=useId().replaceAll(':','');
-  const shapeId=`portrait-window-${unique}`,maskId=`portrait-base-${unique}`,clipId=`portrait-overlay-${unique}`;
+  const shapeId=`portrait-window-${unique}`,maskId=`portrait-base-${unique}`,clipId=`portrait-overlay-${unique}`,shadowId=`portrait-shadow-${unique}`;
   useGSAP((context,contextSafe)=>{
     const blob={x:800,y:450,radius:0,phase:0};
     let mode='idle',inView=true,transition,idleTime=0,introPending=true,scrollPaused=false;
@@ -85,8 +85,12 @@ export default function PortraitSequence({ main, alternate, ready, reduced, hove
         <rect width="1600" height="1000" fill="white"/><use href={`#${shapeId}`} fill="black" stroke="white" strokeWidth="1.5"/>
       </mask>
       <clipPath id={clipId}><use href={`#${shapeId}`}/></clipPath>
+      <filter id={shadowId} x="-25%" y="-25%" width="150%" height="150%" colorInterpolationFilters="sRGB">
+        <feGaussianBlur stdDeviation="14"/>
+      </filter>
     </defs>
     <image href={main} width="1600" height="1000" mask={`url(#${maskId})`}/>
+    <use href={`#${shapeId}`} fill="none" stroke="#555a56" strokeWidth="24" opacity=".46" filter={`url(#${shadowId})`}/>
     <image href={alternate} width="1600" height="1000" clipPath={`url(#${clipId})`}/>
   </svg>;
 }
