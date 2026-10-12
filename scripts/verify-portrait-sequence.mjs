@@ -65,10 +65,10 @@ for(const config of [
     check('Reduced motion retains static signature',await page.locator('.signature-static').count()===1);
   }
   await page.getByRole('button',{name:photoSwitch?'Switch to work mode':'SWITCH TO WORK MODE'}).click();
-  await page.waitForTimeout(name==='reduced'?80:1300);
+  await page.waitForTimeout(name==='reduced'?80:1550);
   check(`${name}: work toggle fills mask`,await radius()>=2099);
   await page.getByRole('button',{name:photoSwitch?'Back to casual portrait':'BACK TO CASUAL'}).click();
-  await page.waitForTimeout(name==='reduced'?80:1000);
+  await page.waitForTimeout(name==='reduced'?80:1550);
   check(`${name}: casual toggle clears mask`,await radius()===0);
   if(name!=='reduced'){
     const span=await page.locator('.hero-journey').evaluate(el=>el.offsetHeight-innerHeight);

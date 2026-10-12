@@ -25,10 +25,7 @@ export default function PortraitSequence({ main, alternate, ready, reduced, hove
       const left=-bounds.left/bounds.width*1600-420;
       const right=(window.innerWidth-bounds.left)/bounds.width*1600+420;
       gsap.set(blob,{x:left,y:390,radius:310});
-      transition=gsap.timeline({repeat:-1,onUpdate:render})
-        .to(blob,{x:right,y:590,duration:4.8,ease:'sine.inOut'},0)
-        .to(blob,{x:left,y:350,duration:4.8,ease:'sine.inOut'},5.4)
-        .to(blob,{y:390,duration:.6,ease:'sine.inOut'},10.2);
+      transition=gsap.to(blob,{x:right,y:560,duration:5.4,ease:'sine.inOut',repeat:-1,yoyo:true});
     });
     const sync=contextSafe(()=>{
       if(requested.suspended||!inView||document.hidden||scrollProgress.current.value>.02){transition?.pause();return;}
@@ -36,9 +33,10 @@ export default function PortraitSequence({ main, alternate, ready, reduced, hove
       const moving=performance.now()-(pointer.current.lastMoved||0)<2500;
       const next=requested.locked?'locked':requested.hovered&&moving&&!reduced&&ready?'hover':'idle';
       if(mode===next||(mode==='intro'||mode==='drift')&&next==='idle')return;
+      const changingPortrait=mode==='locked'||next==='locked';
       stop();mode=next;idleTime=0;
       if(next==='hover'||next==='locked')introPending=false;
-      transition=gsap.to(blob,{radius:next==='locked'?2100:next==='hover'?290:0,duration:reduced?0:next==='idle'?.8:1.2,ease:'expo.inOut',onUpdate:render});
+      transition=gsap.to(blob,{radius:next==='locked'?2100:next==='hover'?290:0,duration:reduced?0:changingPortrait?1.4:next==='idle'?.85:1.1,ease:changingPortrait?'sine.inOut':'power2.inOut'});
     });
     const tick=(_,delta)=>{
       if(!inView||document.hidden)return;
@@ -64,7 +62,7 @@ export default function PortraitSequence({ main, alternate, ready, reduced, hove
       introPending=false;
       if(!ready||reduced||requested.hovered||requested.locked||requested.suspended||!inView||scrollProgress.current.value>.02)return;
       mode='intro';
-      transition=gsap.timeline({onUpdate:render,onComplete:()=>{mode='idle';idleTime=0;render();}})
+      transition=gsap.timeline({onComplete:()=>{mode='idle';idleTime=0;render();}})
         .to(blob,{radius:270,x:760,y:380,duration:1.2,ease:'expo.inOut'},0)
         .to(blob,{x:940,y:630,duration:2.4,ease:'sine.inOut'},.6)
         .to(blob,{radius:0,duration:1,ease:'expo.inOut'},3.1);
