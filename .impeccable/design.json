@@ -1,0 +1,258 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-12T16:07:24.963227+00:00",
+  "title": "Design System: Ilyass Azyaiz Portfolio",
+  "extensions": {
+    "colorMeta": {
+      "lime": {
+        "role": "primary",
+        "displayName": "Electric Lime",
+        "canonical": "#d2ff00",
+        "tonalRamp": [
+          "oklch(15% 0.23 118)",
+          "oklch(27% 0.23 118)",
+          "oklch(39% 0.23 118)",
+          "oklch(51% 0.23 118)",
+          "oklch(63% 0.23 118)",
+          "oklch(75% 0.23 118)",
+          "oklch(87% 0.23 118)",
+          "oklch(95% 0.23 118)"
+        ],
+        "rampNote": "Synthesized preview ramp; not an implemented token scale."
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Chalk Paper",
+        "canonical": "#f5f5ed",
+        "tonalRamp": [
+          "oklch(15% 0.013 107)",
+          "oklch(27% 0.013 107)",
+          "oklch(39% 0.013 107)",
+          "oklch(51% 0.013 107)",
+          "oklch(63% 0.013 107)",
+          "oklch(75% 0.013 107)",
+          "oklch(87% 0.013 107)",
+          "oklch(95% 0.013 107)"
+        ],
+        "rampNote": "Synthesized preview ramp; not an implemented token scale."
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Deep Olive",
+        "canonical": "#292f22",
+        "tonalRamp": [
+          "oklch(15% 0.026 126)",
+          "oklch(27% 0.026 126)",
+          "oklch(39% 0.026 126)",
+          "oklch(51% 0.026 126)",
+          "oklch(63% 0.026 126)",
+          "oklch(75% 0.026 126)",
+          "oklch(87% 0.026 126)",
+          "oklch(95% 0.026 126)"
+        ],
+        "rampNote": "Synthesized preview ramp; not an implemented token scale."
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Olive Gray",
+        "canonical": "#626954",
+        "tonalRamp": [
+          "oklch(15% 0.032 119)",
+          "oklch(27% 0.032 119)",
+          "oklch(39% 0.032 119)",
+          "oklch(51% 0.032 119)",
+          "oklch(63% 0.032 119)",
+          "oklch(75% 0.032 119)",
+          "oklch(87% 0.032 119)",
+          "oklch(95% 0.032 119)"
+        ],
+        "rampNote": "Synthesized preview ramp; not an implemented token scale."
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Pale Olive Rule",
+        "canonical": "#d5d8c9",
+        "tonalRamp": [
+          "oklch(15% 0.021 115)",
+          "oklch(27% 0.021 115)",
+          "oklch(39% 0.021 115)",
+          "oklch(51% 0.021 115)",
+          "oklch(63% 0.021 115)",
+          "oklch(75% 0.021 115)",
+          "oklch(87% 0.021 115)",
+          "oklch(95% 0.021 115)"
+        ],
+        "rampNote": "Synthesized preview ramp; not an implemented token scale."
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Oversized Sans",
+        "purpose": "Desktop hero surname with difference blending; mobile name uses normal ink."
+      },
+      "display-serif": {
+        "displayName": "Expressive Serif",
+        "purpose": "Hero first name and selective headline emphasis."
+      },
+      "label": {
+        "displayName": "Condensed Utility",
+        "purpose": "Navigation controls, metadata and supporting labels."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "css-reveal-ease",
+        "value": "cubic-bezier(.16,1,.3,1)",
+        "purpose": "Rolling text and elliptical portrait/detail transitions."
+      },
+      {
+        "name": "menu-reveal",
+        "value": ".8s power4.inOut",
+        "purpose": "Full-screen elliptical menu entrance."
+      },
+      {
+        "name": "hero-entrance",
+        "value": "1.25?1.45s expo.out",
+        "purpose": "Name and portrait entrance."
+      },
+      {
+        "name": "pointer-follow",
+        "value": ".8s power3.out",
+        "purpose": "Mouse-only portrait response."
+      },
+      {
+        "name": "work-scrub",
+        "value": ".65",
+        "purpose": "Desktop ScrollTrigger rail smoothing; linear tween."
+      },
+      {
+        "name": "title-wipe",
+        "value": ".4s / .7s / .08s stagger",
+        "purpose": "Heading wipe, reveal and line cadence."
+      },
+      {
+        "name": "reduced-motion",
+        "value": ".01ms CSS transitions",
+        "purpose": "GSAP entrances are skipped or shortened, work stacks and scrolling is immediate."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "mobile-max",
+        "value": "600px"
+      },
+      {
+        "name": "stacked-work-max",
+        "value": "999px"
+      },
+      {
+        "name": "pinned-work-min",
+        "value": "1000px"
+      },
+      {
+        "name": "wide-portrait-min",
+        "value": "1600px"
+      },
+      {
+        "name": "short-desktop",
+        "value": "(max-height: 700px) and (min-width: 1000px)"
+      },
+      {
+        "name": "short-landscape",
+        "value": "(max-height: 500px) and (max-width: 999px) and (orientation: landscape)"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Lime contact and CV actions with a rotating arrow.",
+      "html": "<button class=\"ds-primary\">DOWNLOAD MY CV<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 19 19 5M5 5h14v14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"/></svg></button>",
+      "css": ".ds-primary{display:inline-flex;align-items:center;justify-content:center;gap:20px;min-height:51px;padding:12px 21px;border:0;border-radius:8px;background:var(--lime,#d2ff00);color:var(--ink,#292f22);font:700 19px/1.1 var(--condensed,\"Barlow Condensed\",sans-serif);cursor:pointer}.ds-primary svg{width:18px;height:18px;transition:transform .3s}.ds-primary:hover svg{transform:rotate(45deg)}.ds-primary:focus-visible{outline:3px solid #61751b;outline-offset:6px}.ds-primary:disabled{opacity:.5;cursor:default}@media(prefers-reduced-motion:reduce){.ds-primary *{transition-duration:.01ms!important}}"
+    },
+    {
+      "name": "Portrait Switch",
+      "kind": "button",
+      "refersTo": "button-portrait",
+      "description": "Paper control with the implemented pressed-state switch.",
+      "html": "<button class=\"ds-switch\" aria-pressed=\"true\">BACK TO CASUAL<span><i></i></span></button>",
+      "css": ".ds-switch{display:inline-flex;align-items:center;gap:16px;min-height:44px;padding:12px 15px;border:0;border-radius:7px;background:var(--paper,#f5f5ed);color:var(--ink,#292f22);font:600 13px var(--condensed,\"Barlow Condensed\",sans-serif);cursor:pointer}.ds-switch>span{display:block;width:24px;height:11px;padding:2px;border:1px solid currentColor;border-radius:20px}.ds-switch i{display:block;width:11px;height:11px;border-radius:50%;background:currentColor;transition:transform .3s}.ds-switch[aria-pressed=true]>span{background:var(--lime,#d2ff00)}.ds-switch[aria-pressed=true] i{transform:translateX(12px)}.ds-switch:focus-visible{outline:3px solid #61751b;outline-offset:6px}@media(prefers-reduced-motion:reduce){.ds-switch *{transition-duration:.01ms!important}}"
+    },
+    {
+      "name": "Menu Toggle",
+      "kind": "button",
+      "refersTo": "button-menu",
+      "description": "Outlined staggered bars become an X when expanded.",
+      "html": "<button class=\"ds-menu-toggle\" aria-expanded=\"false\" aria-label=\"Open navigation\"><span></span><span></span></button>",
+      "css": ".ds-menu-toggle{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:52px;height:51px;border:1.5px solid currentColor;border-radius:9px;background:var(--paper,#f5f5ed);color:var(--ink,#292f22);cursor:pointer}.ds-menu-toggle span{width:19px;height:2px;background:currentColor;transition:transform .35s}.ds-menu-toggle span:first-child{transform:translateX(4px)}.ds-menu-toggle span:last-child{transform:translateX(-4px)}.ds-menu-toggle[aria-expanded=true] span:first-child{transform:translateY(4px) rotate(45deg)}.ds-menu-toggle[aria-expanded=true] span:last-child{transform:translateY(-4px) rotate(-45deg)}.ds-menu-toggle:focus-visible{outline:3px solid #61751b;outline-offset:6px}@media(prefers-reduced-motion:reduce){.ds-menu-toggle *{transition-duration:.01ms!important}}"
+    },
+    {
+      "name": "Menu Links",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "Oversized links on lime change to expressive serif on hover.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Preview navigation\"><a href=\"#about\">About<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 19 19 5M5 5h14v14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"/></svg></a><a href=\"#work\">The work<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 19 19 5M5 5h14v14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"/></svg></a></nav>",
+      "css": ".ds-nav{padding:32px;background:var(--lime,#d2ff00);color:var(--ink,#292f22)}.ds-nav a{display:flex;justify-content:space-between;align-items:center;color:inherit;text-decoration:none;font:750 clamp(35px,5.8vw,90px)/1.18 var(--sans,\"Mona Sans Variable\",sans-serif);letter-spacing:-.04em}.ds-nav a:hover{font-family:var(--serif,\"Bodoni Moda Variable\",Georgia,serif);font-weight:600}.ds-nav svg{width:40px;height:40px;opacity:0;transform:translate(-20px,20px);transition:.3s}.ds-nav a:hover svg{opacity:1;transform:none}.ds-nav a:focus-visible{outline:3px solid #61751b;outline-offset:6px}@media(prefers-reduced-motion:reduce){.ds-nav *{transition-duration:.01ms!important}}"
+    },
+    {
+      "name": "Project Detail Toggle",
+      "kind": "button",
+      "refersTo": "project-details",
+      "description": "Thin-rule toggle for the project illustration overlay.",
+      "html": "<button class=\"ds-detail\" aria-expanded=\"false\">PROJECT DETAILS<span></span></button>",
+      "css": ".ds-detail{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:45px;padding:10px 0;border:0;border-bottom:1px solid #8e9880;background:transparent;color:var(--ink,#292f22);font:700 15px var(--condensed,\"Barlow Condensed\",sans-serif);cursor:pointer}.ds-detail span{position:relative;width:15px;height:15px}.ds-detail span:before,.ds-detail span:after{content:\"\";position:absolute;top:7px;left:0;width:15px;height:1.5px;background:currentColor;transition:transform .25s}.ds-detail span:after{transform:rotate(90deg)}.ds-detail[aria-expanded=true] span:after{transform:rotate(0)}.ds-detail:focus-visible{outline:3px solid #61751b;outline-offset:6px}@media(prefers-reduced-motion:reduce){.ds-detail *{transition-duration:.01ms!important}}"
+    },
+    {
+      "name": "Contact Surface",
+      "kind": "card",
+      "refersTo": "contact-surface",
+      "description": "Rounded olive contact panel with serif lime emphasis.",
+      "html": "<section class=\"ds-contact\"><h2>LET?S BUILD<br>SOMETHING <em>GOOD.</em></h2><a href=\"mailto:ilyassazetd@gmail.com\">ilyassazetd@gmail.com<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 19 19 5M5 5h14v14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"/></svg></a></section>",
+      "css": ".ds-contact{position:relative;border-radius:26px;padding:45px 4vw 24px;background:var(--ink,#292f22);color:var(--paper,#f5f5ed)}.ds-contact h2{margin:0;text-align:center;font:750 clamp(40px,6.7vw,106px)/.98 var(--sans,\"Mona Sans Variable\",sans-serif);letter-spacing:-.04em}.ds-contact em{color:var(--lime,#d2ff00);font-family:var(--serif,\"Bodoni Moda Variable\",Georgia,serif);font-weight:500;font-style:normal}.ds-contact a{display:inline-flex;align-items:center;gap:20px;margin-top:40px;color:inherit;text-decoration:none;font:clamp(20px,2.8vw,42px) var(--sans,\"Mona Sans Variable\",sans-serif);letter-spacing:-.03em}.ds-contact svg{width:32px;height:32px}.ds-contact a:hover{text-decoration:underline}.ds-contact a:focus-visible{outline:3px solid var(--lime,#d2ff00);outline-offset:6px}@media(prefers-reduced-motion:reduce){.ds-contact *{transition-duration:.01ms!important}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Engineer in Motion",
+    "overview": "An expressive, portrait-led identity translates the user's landonorris.com reference into an engineering portfolio. Oversized mixed sans and serif typography, quiet contour lines, and electric lime accents give the work a confident editorial presence. This descriptive name records the implemented direction; it is not an additional user-selected concept.\n\nThe surfaces are flat, spacious, and graphic. Aligned casual and professional portraits create the signature interaction, while clipped reveals and scroll choreography connect sections. Native touch scrolling and a complete reduced-motion presentation are part of the system.",
+    "keyCharacteristics": [
+      "Chalk and olive surfaces with electric lime emphasis.",
+      "Oversized sans and serif headlines paired with condensed utility labels.",
+      "Aligned portrait transformation, contour lines, and the IA monogram.",
+      "Flat tonal depth, curved transitions, and restrained control rounding.",
+      "Responsive choreography with a stacked reduced-motion alternative."
+    ],
+    "rules": [
+      {
+        "name": "The Surface Pairing Rule",
+        "body": "Use ink text on paper or lime, and paper text on ink; lime carries emphasis on dark sections.",
+        "section": "colors"
+      },
+      {
+        "name": "The Mixed Headline Rule",
+        "body": "Pair sans structure with selected serif words; preserve ordinary sans body text for sustained reading.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Surface Rule",
+        "body": "Preserve tonal separation and clear typography instead of adding shadow-based card elevation.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do preserve the aligned portrait pair and provide its explicit keyboard and touch control.",
+      "Do pair ink with paper or lime and use the condensed family for compact utility text.",
+      "Do retain the mobile name above the face and stack projects below the desktop breakpoint.",
+      "Do retain visible focus, native touch scrolling, and the complete reduced-motion layout.",
+      "Do identify project diagrams as illustrations and keep claims grounded in the supplied CV."
+    ],
+    "donts": [
+      "Don't add shadow-based elevation to the flat project and skill surfaces.",
+      "Don't make portrait switching or navigation depend exclusively on hover.",
+      "Don't apply desktop difference blending to the mobile hero name.",
+      "Don't require pinned horizontal scrolling in reduced-motion mode."
+    ]
+  }
+}
