@@ -113,7 +113,6 @@ function Hero({ ready, reduced, suspended }) {
     if (!ready) return;
     if (!reduced) {
       gsap.from('.portrait-sequence', { yPercent: 12, scale: 1.09, duration: 1.45, ease: 'expo.out' });
-      gsap.from('.hero-name span', { yPercent: 110, stagger: .12, duration: 1.25, ease: 'expo.out' });
       gsap.from('.hero-detail, .hero-bottom', { autoAlpha: 0, y: 20, duration: .9, delay: .35, ease: 'power3.out' });
       pointerFns.current = { x: gsap.quickTo(portrait.current, 'x', { duration: .8, ease: 'power3.out' }), y: gsap.quickTo(portrait.current, 'y', { duration: .8, ease: 'power3.out' }), rotation: gsap.quickTo(portrait.current, 'rotation', { duration: .8, ease: 'power3.out' }) };
       const frame=ref.current.querySelector('.hero-portrait-reveal');
@@ -134,7 +133,6 @@ function Hero({ ready, reduced, suspended }) {
         .to(stage.current,{backgroundColor:'#292f22',duration:.6},0)
         .to('.organic-contours',{color:'#70834b',opacity:.34,duration:.65},0)
         .fromTo('.hero-detail, .hero-bottom',{autoAlpha:1,y:0},{autoAlpha:0,y:-30,duration:.16,immediateRender:false},0)
-        .to('.hero-name',{yPercent:-50,autoAlpha:0,duration:.3},0)
         .to(frame,{scale:()=>targetWidth()/frame.offsetWidth,y:()=>stage.current.clientHeight*.52+targetWidth()*.625/2-stage.current.clientHeight-2,backgroundColor:'#626957',duration:.7,ease:'power1.inOut'},0)
         .to('.portrait-sequence',{filter:'grayscale(1)',opacity:.65,duration:.7},0)
         .fromTo('.signature-scene',{autoAlpha:0},{autoAlpha:1,duration:.2},.38)
@@ -159,11 +157,11 @@ function Hero({ ready, reduced, suspended }) {
   return <section ref={ref} className={`hero-journey ${reduced?'is-reduced':''}`} id="home"><div ref={stage} className="hero" onPointerMove={move} onPointerLeave={()=>{pointerFns.current?.x(0);pointerFns.current?.y(0);pointerFns.current?.rotation(0);}}>
     <OrganicContours reduced={reduced} suspended={suspended} pointer={pointer}/>
     <div className="hero-detail hero-intro"><span>SOFTWARE ENGINEER</span><span>CURIOUS BY NATURE.<br/>ENGINEER BY TRAINING.</span></div>
-    <h1 className="hero-name" aria-label="Ilyass Azyaiz"><span aria-hidden="true" className="serif">ILYASS</span><span aria-hidden="true">AZYAIZ</span></h1>
+    <h1 className="hero-name" aria-label="Ilyass Azyaiz"/>
     <div className="hero-portrait-reveal"><div ref={portrait} className="hero-portrait" onPointerEnter={e=>{if(e.pointerType==='mouse')setHovered(true);}} onPointerLeave={e=>{if(e.pointerType==='mouse')setHovered(false);}}><PortraitSequence main={mainPortrait} alternate={hoverPortrait} ready={ready} reduced={reduced} hovered={hovered&&!transitioning} locked={locked} suspended={suspended} pointer={pointer} scrollProgress={scrollProgress}/></div></div>
     <div className="signature-scene" aria-hidden="true"><div className="signature-intro"><Monogram/><span>A NOTE FROM ILYASS</span></div><div className="signature-marquee"><div className="signature-line-one">CURIOUS BY NATURE. CURIOUS BY NATURE.</div><div className="signature-line-two">ENGINEER BY TRAINING. ENGINEER BY TRAINING.</div></div><Signature/></div>
     <div className="hero-detail hero-location"><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><circle cx="20" cy="20" r="15"/><ellipse cx="20" cy="20" rx="7" ry="15"/><path d="M5 20h30M8 11h24M8 29h24"/></svg><span>BASED IN<br/>CASABLANCA, MA</span></div>
-    <div className="hero-bottom" inert={transitioning&&!reduced}><a href="#about" className="scroll-cue"><span>SCROLL TO EXPLORE</span><Arrow direction="down"/></a><button className="portrait-switch" onClick={togglePortrait} aria-pressed={locked}><span>{locked ? 'BACK TO CASUAL' : 'SWITCH TO WORK MODE'}</span><span className="switch-track"><i/></span></button></div>
+    <div className="hero-bottom" inert={transitioning&&!reduced}><a href="#about" className="scroll-cue"><span>SCROLL TO EXPLORE</span><span className="cue-arrow"><Arrow direction="down"/></span></a><button className="portrait-switch" onClick={togglePortrait} aria-pressed={locked}><span>{locked ? 'BACK TO CASUAL' : 'SWITCH TO WORK MODE'}</span><span className="switch-track"><i/></span><span className="switch-arrow"><Arrow/></span></button></div>
   </div>{reduced&&<div className="signature-static dark-section"><p>CURIOUS BY NATURE.<br/>ENGINEER BY TRAINING.</p><img src={mainPortrait} alt=""/><Signature/></div>}</section>;
 }
 
