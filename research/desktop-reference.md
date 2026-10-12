@@ -18,7 +18,7 @@ Screenshots are in `desktop/`. Representative points: `hero.png`, `settled-1.png
 ## Implementation choices for Ilyass
 
 - Kept the pale/olive/lime palette, strong serif/sans contrast, fine contour vectors, centered portrait, large name, expressive menu and curved transitions.
-- Replaced the racing helmet with the supplied aligned professional portrait. The alternate image uses an expanding ellipse, pointer motion, and touch toggle. This is a two-dimensional layered effect, not the reference's depth-displaced WebGL portrait and 3D helmet.
+- Replaced the racing helmet with the supplied aligned professional portrait. The final user-directed implementation uses a morphing blob mask, pointer motion, and touch toggle, plus a scroll-driven shrink into a signature scene. See `hero-blob-transition.md`. This is a two-dimensional layered effect, not the reference's depth-displaced WebGL portrait and 3D helmet.
 - Rebuilt the splash using a custom IA SVG and GSAP. Image loading settles on errors, fonts are awaited, and an escape timeout and skip control prevent a stranded overlay. Reference loading duration was asset-dependent; we do not copy its network delay.
 - Replaced the photographic horizontal story and collectible gallery with three CV-backed engineering projects, each with an explanatory diagram and details. Desktop uses pinned horizontal movement; mobile and reduced motion use normal vertical reading.
 - Kept the shaped footer, contact action, background and education content. Added a PDF CV generated from the supplied Markdown.

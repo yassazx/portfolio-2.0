@@ -21,13 +21,17 @@ Open the local URL printed by Vite. `npm run build` creates a static production 
 - `main.png` and `hover.png`: original supplied images, preserved unchanged.
 - `public/Ilyass-Azyaiz-CV.pdf`: downloadable one-page CV.
 
-Project visuals are explanatory diagrams of work described in the CV. They are not screenshots of internal employer software. No social-profile URL was invented from the LinkedIn name in the CV.
+The footer links to the LinkedIn URL supplied by Ilyass. The large hero name is shown on mobile and kept as accessible text on desktop.
+
+Project visuals are explanatory diagrams of work described in the CV. They are not screenshots of internal employer software. The LinkedIn link comes from the URL supplied by Ilyass.
 
 ## Motion and interaction
 
 - Asset-aware lime splash, IA monogram, progress readout, curved exit, skip control, and timeout fallback.
-- Casual/professional portrait reveal on mouse hover; tap or keyboard toggle keeps a selected mode.
-- Pointer parallax and scroll drift with a separate mobile composition.
+- Organic blob reveal between the aligned portraits, with pointer tracking and a touch/keyboard work-mode toggle.
+- Automatic opening blob followed by alternating idle sweeps; moving the pointer takes control again.
+- Moving topographic contours with irregular loops and flowing bends.
+- Scroll-driven hero-to-signature transition: darkening background, shrinking portrait, opposing text rows, and drawn lime signature; fully reversible with scroll.
 - Fullscreen curved menu, staggered links, Escape dismissal, focus trap and focus restoration.
 - Staggered colored text wipes and a horizontal project sequence on desktop.
 - Vertically stacked projects on mobile and for reduced motion.
@@ -44,6 +48,7 @@ npm run dev -- --port 5173
 # In another terminal:
 npm run verify
 npm run verify:keyboard
+npm run verify:portrait
 ```
 
 Set `PREVIEW_URL` to test another local origin. Browser screenshots and the check report are written to `.impeccable/review/`. The probe covers desktop, two phone widths, landscape, reduced motion, menu controls, portrait toggle, project details, overflow, broken-image loading, browser errors, and CV download. The keyboard probe checks forward/reverse project navigation and landscape disclosure focus and dismissal. These are Chrome checks with emulated viewports, not physical-device or cross-browser validation.
@@ -60,5 +65,6 @@ npm run cv
 - `research/motion-source.md`: source-backed animation timings, easing, loading gates, portrait rendering and mobile behavior.
 - `research/mobile-reference.md`: full mobile traversal, touch interactions, splash, menu and landscape findings.
 - `research/desktop-reference.md`: desktop scroll and reconstruction decisions.
+- `research/hero-blob-transition.md`: recording observations and the final blob/signature adaptation.
 
 REA exports, downloaded reference JavaScript, and research screenshots are local research artifacts, excluded from the build. The Vite production output contains only the portfolio and its own assets. See `ASSET-PROVENANCE.json` for asset origins.

@@ -8,6 +8,14 @@ export function Monogram({ className = '' }) {
   return <svg className={`monogram ${className}`} viewBox="0 0 80 80" fill="none" aria-hidden="true"><path className="mark-i" d="m23 16-12 48h10l12-48H23Z" fill="currentColor"/><path className="mark-a" d="m43 16-23 48h11l5-12h19l1 12h11l-7-48H43Zm-3 27 9-20h2l3 20H40Z" fill="currentColor"/></svg>;
 }
 
+export function Signature({ className = '' }) {
+  return <svg className={`signature-mark ${className}`} viewBox="0 0 900 400" fill="none" aria-label="Ilyass Azyaiz signature mark" role="img"><g stroke="currentColor" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M90 277C218 178 595 66 757 72C865 76 623 240 273 296C102 324 95 306 225 245M528 35C449 134 342 301 304 365"/>
+    <path d="M364 275C407 213 475 151 468 187L418 307C486 209 584 117 574 167L531 265C555 253 594 216 610 219C626 223 573 261 597 252L675 210"/>
+    <path d="M243 316C427 281 632 224 811 229"/>
+  </g></svg>;
+}
+
 export function Contours({ className = '' }) {
   return <svg className={`contours ${className}`} viewBox="0 0 1440 1000" preserveAspectRatio="xMidYMid slice" fill="none" aria-hidden="true"><g stroke="currentColor" strokeWidth="1">
     <path d="M-120 124C44-122 352-20 331 179S84 544 240 704s403 32 486 118 32 285 260 282M-40 194C95 13 268 34 249 187S86 482 297 638s384 27 489 137 77 244 258 244"/>

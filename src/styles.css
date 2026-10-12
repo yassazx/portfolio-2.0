@@ -96,7 +96,24 @@ a:hover .roll-text>span+span, button:hover .roll-text>span+span { transform: tra
 .splash-mark>span { margin-top: 24px; font: 700 15px var(--condensed); letter-spacing: .12em; }
 
 /* Portrait and name have separate transforms for entrance, scroll and pointer. */
-.hero { position: relative; height: 100svh; min-height: 680px; max-height: 1200px; background: var(--paper); isolation: isolate; overflow: hidden; }
+.hero-journey { position: relative; height: 220svh; }
+.hero { position: sticky; top: 0; height: 100svh; background: var(--paper); isolation: isolate; overflow: hidden; }
+.organic-contours { position: absolute; inset: 0; width: 100%; height: 100%; color: #a8ae91; opacity: .55; pointer-events: none; }
+.signature-scene { position: absolute; inset: 0; visibility: hidden; opacity: 0; pointer-events: none; }
+.signature-intro { position: absolute; top: 16%; left: 50%; transform: translateX(-50%); color: var(--paper); display: grid; justify-items: center; gap: 12px; font: 600 12px var(--condensed); }
+.signature-intro .monogram { width: 36px; height: 36px; color: var(--lime); }
+.signature-marquee { position: absolute; top: 40%; left: -45%; width: 190%; font-size: clamp(45px,7.5vw,125px); line-height: .96; letter-spacing: -.04em; font-weight: 750; white-space: nowrap; color: var(--paper); }
+.signature-line-one { color: #bdce56; font-family: var(--serif); font-weight: 550; }
+.signature-mark { color: var(--lime); }
+.signature-scene>.signature-mark { position: absolute; z-index: 4; width: min(80vw,930px); height: auto; top: 53%; left: 50%; transform: translate(-50%,-50%) rotate(-8deg); }
+.signature-scene>.signature-intro,.signature-scene>.signature-marquee { z-index: 1; }
+.hero-journey.is-reduced { height: auto; }
+.is-reduced .hero { position: relative; }
+.is-reduced .signature-scene { display: none; }
+.signature-static { position: relative; display: grid; place-items: center; min-height: 70svh; overflow: hidden; padding: 90px 20px; }
+.signature-static p { position: absolute; text-align: center; font-size: clamp(35px,7vw,100px); font-weight: 750; }
+.signature-static img { width: min(82vw,520px); filter: grayscale(1); opacity: .65; background: #707866; }
+.signature-static .signature-mark { position: absolute; width: min(90vw,930px); }
 .hero-name { position: absolute; bottom: 12%; left: 3%; right: 3%; z-index: 3; display: flex; justify-content: space-between; gap: 2vw; align-items: baseline; font-size: clamp(85px,11.8vw,205px); line-height: 1.05; letter-spacing: -.04em; font-weight: 850; color: #fff; mix-blend-mode: difference; overflow: hidden; pointer-events: none; }
 .hero-name>span { flex-shrink: 0; }
 .hero-name .serif { font-weight: 600; font-size: 1.08em; }
@@ -251,6 +268,9 @@ a:hover .roll-text>span+span, button:hover .roll-text>span+span { transform: tra
 .email-link { font-size: clamp(20px,2.8vw,42px); letter-spacing: -.03em; display: inline-flex; gap: 20px; align-items: center; }
 .email-link:hover { text-decoration: underline; }
 .email-link .arrow { height: 32px; width: 32px; }
+.linkedin-link { display: flex; align-items: center; gap: 8px; width: max-content; min-height: 44px; font: 650 14px var(--condensed); color: #c4cdb4; }
+.linkedin-link:hover { color: var(--lime); }
+.linkedin-link .arrow { width: 15px; height: 15px; }
 .copy-email { display: flex; align-items: center; gap: 8px; font: 600 12px var(--condensed); color: #c4cdb4; min-height: 44px; padding: 8px 0; margin-top: 5px; }
 .copy-email svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.5; }
 .footer-name { position: relative; font-size: 12.1vw; line-height: 1.2; font-weight: 800; letter-spacing: -.04em; white-space: nowrap; color: #e2e5d6; }
@@ -261,9 +281,11 @@ a:hover .roll-text>span+span, button:hover .roll-text>span+span { transform: tra
 .footer-bottom button { font: inherit; min-height: 44px; padding: 0 10px; }
 
 @media (min-width: 1600px) { .hero-portrait-reveal { width: min(100vw,150svh); } }
+@media (min-width: 1000px) {
+  .hero-name { width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; mix-blend-mode: normal; }
+}
 @media (max-width: 999px) {
   .header { padding: 20px; }
-  .hero { min-height: 720px; }
   .hero-portrait-reveal { width: min(150vw,150svh); }
   .hero-intro { top: 18%; left: 5%; }
   .hero-location { top: 19%; }
@@ -313,7 +335,10 @@ a:hover .roll-text>span+span, button:hover .roll-text>span+span { transform: tra
   .splash-meta { top: 24px; }
   .splash-mark .monogram { width: 135px; }
   .splash-mark>span { font-size: 13px; }
-  .hero { height: 100svh; min-height: 650px; max-height: 1000px; }
+  .hero { height: 100svh; }
+  .signature-intro { top: 20%; font-size: 10px; }
+  .signature-marquee { top: 43%; font-size: 12vw; width: 320%; left: -110%; line-height: 1.05; }
+  .signature-scene>.signature-mark { width: 115vw; }
   .hero-intro { top: 175px; left: 0; width: 100%; align-items: center; gap: 10px; text-align: center; }
   .hero-intro>span:first-child { font-size: 17px; }
   .hero-intro>span+span { font-size: 9px; line-height: 1.45; }
@@ -425,7 +450,12 @@ a:hover .roll-text>span+span, button:hover .roll-text>span+span { transform: tra
 }
 
 @media (max-height: 500px) and (max-width: 999px) and (orientation: landscape) {
-  .hero { height: 650px; }
+  .hero { height: 100svh; }
+  .hero-intro,.hero-location,.signature-intro { display: none; }
+  .hero-name { font-size: 9vw; bottom: 19%; }
+  .hero-bottom { bottom: 12px; }
+  .signature-marquee { top: 36%; font-size: 8vw; }
+  .signature-scene>.signature-mark { width: 65vw; }
   .menu { padding-top: 85px; padding-bottom: 55px; }
   .menu-portrait { display: none; }
   .menu nav { display: flex; flex-wrap: wrap; gap: 8px 30px; }

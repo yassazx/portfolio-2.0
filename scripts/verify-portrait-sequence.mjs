@@ -1,87 +1,115 @@
-import { chromium } from '@playwright/test';
+﻿import { chromium } from '@playwright/test';
 import { mkdir, writeFile } from 'node:fs/promises';
 const browser=await chromium.launch({channel:'chrome'});
 const origin=process.env.PREVIEW_URL||'http://127.0.0.1:5173';
-const dir='.impeccable/review/portrait-sequence';
+const dir='.impeccable/review/blob-hero';
 await mkdir(dir,{recursive:true});
 const checks=[];
-const check=(name,pass)=>{checks.push({name,pass});};
-for (const config of [
+const check=(name,pass,details)=>checks.push({name,pass,details});
+for(const config of [
   {name:'desktop',viewport:{width:1440,height:900}},
   {name:'mobile',viewport:{width:390,height:844},isMobile:true,hasTouch:true},
+  {name:'landscape',viewport:{width:844,height:390},isMobile:true,hasTouch:true},
   {name:'reduced',viewport:{width:1280,height:800},reducedMotion:'reduce'},
-]) {
+]){
   const {name,...options}=config;
-  const page=await browser.newPage(options);
-  const errors=[];
+  if(process.env.ONLY&&process.env.ONLY!==name)continue;
+  const page=await browser.newPage(options),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.goto(origin);
   await page.locator('.splash').waitFor({state:'detached'});
-  const svg=page.locator('.portrait-sequence');
-  const path=svg.locator('defs>path');
-  const phase=()=>svg.getAttribute('data-phase');
+  await page.waitForTimeout(1600);
+  const svg=page.locator('.portrait-sequence'),path=svg.locator('defs>path');
   const d=()=>path.getAttribute('d');
-  await page.waitForTimeout(1500);
+  const radius=async()=>Number(await svg.getAttribute('data-radius'));
   const initialTop=await page.locator('.hero-portrait-reveal').evaluate(el=>el.getBoundingClientRect().top);
-  if(name==='desktop') {
-    await svg.hover({position:{x:650,y:280}});
-    await page.waitForTimeout(1100);
-    const first=await d();
-    await page.screenshot({path:`${dir}/desktop-horizontal.png`});
-    await page.waitForTimeout(450);
-    check('Hover animates the reveal window',await phase()==='hover'&&await d()!==first);
-    await page.waitForTimeout(2100);
-    await page.screenshot({path:`${dir}/desktop-diagonal.png`});
-    await page.getByRole('button',{name:'Open navigation'}).click();
-    await page.waitForTimeout(200);
-    const paused=await d();
-    await page.waitForTimeout(400);
-    check('Menu suspends portrait motion',await d()===paused);
-    await page.keyboard.press('Escape');
-    await page.waitForTimeout(1000);
-    await svg.hover({position:{x:650,y:280}});
-    await page.waitForTimeout(400);
-    await page.evaluate(()=>scrollTo({top:innerHeight*1.5,behavior:'instant'}));
-    await page.waitForTimeout(250);
-    const offscreen=await d();
-    await page.waitForTimeout(500);
-    check('Offscreen portrait stops updating',await d()===offscreen);
-    await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));
-    await page.mouse.move(10,10);
+  const contour=page.locator('.organic-contours path').first();
+  const originalLine=await contour.getAttribute('d');
+  if(name==='desktop'){
+    await svg.hover({position:{x:700,y:370}});
     await page.waitForTimeout(1300);
-    check('Pointer leave restores casual portrait',await d()==='M0,0Z');
-    check('Returning to hero preserves portrait position',Math.abs(await page.locator('.hero-portrait-reveal').evaluate(el=>el.getBoundingClientRect().top)-initialTop)<1);
+    const first=await d();
+    await page.screenshot({path:`${dir}/desktop-blob.png`});
+    await page.waitForTimeout(250);
+    check('Hover reveals a morphing curved blob',first.includes('C')&&first!==await d()&&await radius()>200);
+    check('Background contours morph organically',originalLine!==await contour.getAttribute('d'));
+    await page.getByRole('button',{name:'Open navigation'}).click();
+    await page.waitForTimeout(100);
+    const paused=await d(),linePaused=await contour.getAttribute('d');
+    await page.waitForTimeout(350);
+    check('Menu suspends both blob and contours',paused===await d()&&linePaused===await contour.getAttribute('d'));
+    await page.keyboard.press('Escape');
+    await page.mouse.move(10,10);
+    await page.waitForTimeout(1200);
   }
-  if(name==='mobile') {
-    await page.waitForTimeout(1400);
-    check('Touch gets the introductory sequence',await phase()==='intro');
-    await page.screenshot({path:`${dir}/mobile-sequence.png`});
-    await page.waitForTimeout(7500);
-    check('Intro completes once and returns to a still portrait',await phase()==='idle'&&await d()==='M0,0Z');
+  if(name==='mobile'){
+    await page.waitForTimeout(1600);
+    check('Mobile introductory blob runs',await svg.getAttribute('data-phase')==='intro'&&await radius()>0);
+    await page.screenshot({path:`${dir}/mobile-blob.png`});
+    await page.waitForTimeout(3100);
+    check('Intro returns to still casual portrait',await d()==='M0,0Z');
+    await page.waitForFunction(()=>document.querySelector('.portrait-sequence').dataset.phase==='drift');
+    const centers=[];
+    for(let i=0;i<12;i++){
+      centers.push(Number(await svg.getAttribute('data-center-x')));
+      if(i===2)await page.screenshot({path:`${dir}/mobile-idle-sweep.png`});
+      await page.waitForTimeout(1000);
+    }
+    const peak=Math.max(...centers),peakIndex=centers.indexOf(peak);
+    check('Idle blob crosses left to right and returns',peakIndex>1&&peakIndex<9&&peak-centers[0]>700&&peak-centers.at(-1)>700,centers);
   }
-  if(name==='reduced') {
-    await page.waitForTimeout(700);
-    check('Reduced motion suppresses automatic sequence',await d()==='M0,0Z');
+  if(name==='reduced'){
+    await page.waitForTimeout(500);
+    check('Reduced motion leaves blob and contours still',await d()==='M0,0Z'&&originalLine===await contour.getAttribute('d'));
+    check('Reduced motion retains static signature',await page.locator('.signature-static').count()===1);
   }
   await page.getByRole('button',{name:'SWITCH TO WORK MODE'}).click();
-  await page.waitForTimeout(name==='reduced'?60:1300);
-  check(`${name}: work mode settles into four complete strips`,(await d()).match(/h1600v251/g)?.length===4);
-  await page.screenshot({path:`${dir}/${name}-work.png`});
+  await page.waitForTimeout(name==='reduced'?80:1300);
+  check(`${name}: work toggle fills mask`,await radius()>=2099);
   await page.getByRole('button',{name:'BACK TO CASUAL'}).click();
-  await page.waitForTimeout(name==='reduced'?60:1100);
-  check(`${name}: toggle restores complete casual image`,await d()==='M0,0Z');
-  check(`${name}: no page overflow`,await page.evaluate(()=>document.documentElement.scrollWidth===innerWidth));
-  if(name==='desktop') {
-    // Rapid hover/toggle/menu interruption must finish in the requested state.
-    await svg.hover({position:{x:650,y:280}});
-    await page.waitForTimeout(150);
-    await page.getByRole('button',{name:'SWITCH TO WORK MODE'}).click();
-    await page.waitForTimeout(120);
-    await page.getByRole('button',{name:'BACK TO CASUAL'}).click();
-    await page.waitForTimeout(1100);
-    check('Rapid interruption restores an intact portrait',await d()==='M0,0Z');
+  await page.waitForTimeout(name==='reduced'?80:1000);
+  check(`${name}: casual toggle clears mask`,await radius()===0);
+  if(name!=='reduced'){
+    const span=await page.locator('.hero-journey').evaluate(el=>el.offsetHeight-innerHeight);
+    const widths=[];
+    for(const fraction of [.25,.5,.85,1]){
+      await page.evaluate(y=>scrollTo({top:y,behavior:'instant'}),span*fraction);
+      await page.waitForTimeout(300);
+      const geometry=await page.locator('.hero-portrait-reveal').evaluate(el=>{const r=el.getBoundingClientRect();return{width:r.width,top:r.top,bottom:r.bottom}});
+      widths.push(geometry.width);
+      check(`${name}: hero stays pinned at ${fraction}`,await page.locator('.hero').evaluate(el=>Math.abs(el.getBoundingClientRect().top)<2));
+      if(fraction===.5||fraction===1)await page.screenshot({path:`${dir}/${name}-scroll-${fraction}.png`});
+    }
+    check(`${name}: portrait shrinks with scroll`,widths[0]>widths[1]&&widths[1]>widths[2]&&Math.abs(widths[2]-widths[3])<2);
+    check(`${name}: signature fully drawn`,await page.locator('.signature-scene .signature-mark path').evaluateAll(els=>els.every(el=>parseFloat(getComputedStyle(el).strokeDashoffset)<1)));
+    const still=await page.locator('.hero-portrait-reveal').getAttribute('style');
+    await page.waitForTimeout(500);
+    check(`${name}: transition waits for scroll`,still===await page.locator('.hero-portrait-reveal').getAttribute('style'));
+    await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));
+    await page.waitForTimeout(500);
+    const returned=await page.locator('.hero-portrait-reveal').evaluate(el=>el.getBoundingClientRect().top);
+    check(`${name}: reverse scroll restores initial geometry`,Math.abs(returned-initialTop)<1);
+    check(`${name}: controls return after reverse scroll`,await page.getByRole('button',{name:'SWITCH TO WORK MODE'}).isVisible());
+    await page.locator('#about').evaluate(el=>el.scrollIntoView({behavior:'instant'}));
+    await page.waitForTimeout(400);
+    const offscreen=await d(),lineOffscreen=await contour.getAttribute('d');
+    await page.waitForTimeout(300);
+    check(`${name}: offscreen motion pauses`,offscreen===await d()&&lineOffscreen===await contour.getAttribute('d'));
   }
-  check(`${name}: no browser errors`,errors.length===0);
+  check(`${name}: no horizontal overflow`,await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+  if(name==='desktop'){
+    await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));
+    await page.waitForTimeout(250);
+    // Locator.hover() can scroll the oversized portrait into view and thereby
+    // enter the scroll transition. Exercise an actual stationary pointer.
+    await page.mouse.move(740,420);
+    await page.waitForFunction(()=>document.querySelector('.portrait-sequence').dataset.phase==='drift',{},{timeout:8000});
+    check('Stationary hover yields to idle sweep',await svg.getAttribute('data-phase')==='drift');
+    await page.mouse.move(800,450);
+    await page.waitForTimeout(250);
+    check('Moving pointer retakes control without waiting',await svg.getAttribute('data-phase')==='hover');
+  }
+  check(`${name}: no browser errors`,errors.length===0,errors);
   await page.close();
 }
 await browser.close();

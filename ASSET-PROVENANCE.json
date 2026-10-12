@@ -5,14 +5,14 @@
       "origin": "User-supplied original in this repository",
       "sha256": "fe9f12d0157e1009d743542c591bff31ccdc93ad185b8a3440fbc4df0d4fcfbb",
       "use": "Primary casual portrait",
-      "modifications": "None; CSS positioning, clipping and animation only"
+      "modifications": "Source unchanged; SVG masking and CSS/GSAP positioning, filtering and animation only"
     },
     {
       "path": "hover.png",
       "origin": "User-supplied original in this repository",
       "sha256": "cbcb6453051d6494793071a868dc684dc462c3f114671fc42c75ccc39946fddc",
       "use": "Alternate professional portrait and menu photograph",
-      "modifications": "None; CSS positioning, clipping and animation only"
+      "modifications": "Source unchanged; SVG masking and CSS/GSAP positioning, filtering and animation only"
     }
   ],
   "fonts": [
@@ -20,5 +20,5 @@
     "Bodoni Moda Variable — @fontsource-variable/bodoni-moda (OFL-1.1)",
     "Barlow Condensed — @fontsource/barlow-condensed (OFL-1.1)"
   ],
-  "graphics": "Original SVG monogram, contours, icons, and explanatory project diagrams authored for this portfolio. No reference-site visual assets are shipped."
+  "graphics": "Original SVG monogram, decorative signature mark, organic contours, icons, and explanatory project diagrams authored for this portfolio. The signature is a designed mark, not user-supplied handwriting. No reference-site visual assets are shipped."
 }

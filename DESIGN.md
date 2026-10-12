@@ -177,7 +177,13 @@ A fixed wordmark, centered monogram, contact action, and outlined menu toggle fl
 
 ### Portrait Switch
 
-Aligned transparent portraits preserve position when changing from casual to professional. Mouse hover reveals the alternate; the visible pressed-state button locks or unlocks it for keyboard and touch. The mask transition takes .7s and opacity .35s. Pointer follow uses `.8s power3.out` easing and only accepts mouse movement; reduced-motion mode removes it. Name and portrait use separate entrance and scroll transforms.
+Aligned transparent portraits preserve position when changing from casual to professional. A morphing organic spline reveals the alternate on hover, expands in 1.2s with `expo.inOut`, and contracts over .8s on leave. The visible pressed-state button expands the reveal across the complete photo for keyboard and touch. After the opening reveal and a short rest, an idle blob sweeps across the viewport in alternating directions (4.8s per pass, `sine.inOut`). A stationary cursor yields to idle motion; pointer movement takes over again.
+
+Background contours are smooth isolines of a slowly evolving, warped scalar field. Separate islands and open meanders move more visibly than the original nested rings, with geometry updates capped at 30Hz. Ambient motion suspends behind the menu, offscreen, and in a hidden tab; the portrait sweep also pauses during the signature transition.
+
+The hero occupies a 220svh scroll section with a sticky viewport. Scroll directly darkens the scene, shrinks the same portrait into a muted rectangular frame, moves two oversized text rows behind it, and draws a lime decorative signature across the portrait. The whole composition reverses with scroll; entrance transforms live on a separate element. Reduced motion presents the signature as a static following section and disables ambient morphing.
+
+The large hero name is visually hidden at desktop widths of 1000px and above, and remains part of the accessible heading. It stays visible on mobile. The footer places the user-supplied LinkedIn link below the email.
 
 ### Project Chapters and Detail Panels
 

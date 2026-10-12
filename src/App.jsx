@@ -2,14 +2,16 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-import { Arrow, Contours, Monogram, Project, RevealTitle, RollText } from './components.jsx';
+import { Arrow, Contours, Monogram, Project, RevealTitle, RollText, Signature } from './components.jsx';
 import { projects, skills } from './data.js';
 import mainPortrait from '../main.png';
 import hoverPortrait from '../hover.png';
 import PortraitSequence from './PortraitSequence.jsx';
+import OrganicContours from './OrganicContours.jsx';
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 const email = 'ilyassazetd@gmail.com';
+const linkedIn = 'https://www.linkedin.com/in/ilyass-azyaiz-768689292/';
 const cvPath = '/Ilyass-Azyaiz-CV.pdf';
 
 function useReducedMotion() {
@@ -99,7 +101,11 @@ function Header({ ready, menuOpen, setMenuOpen, dark, reduced }) {
 
 function Hero({ ready, reduced, suspended }) {
   const ref = useRef();
+  const stage = useRef();
   const portrait = useRef();
+  const pointer = useRef({x:800,y:450});
+  const scrollProgress = useRef({value:0});
+  const [transitioning, setTransitioning] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [locked, setLocked] = useState(false);
   const pointerFns = useRef(null);
@@ -110,27 +116,55 @@ function Hero({ ready, reduced, suspended }) {
       gsap.from('.hero-name span', { yPercent: 110, stagger: .12, duration: 1.25, ease: 'expo.out' });
       gsap.from('.hero-detail, .hero-bottom', { autoAlpha: 0, y: 20, duration: .9, delay: .35, ease: 'power3.out' });
       pointerFns.current = { x: gsap.quickTo(portrait.current, 'x', { duration: .8, ease: 'power3.out' }), y: gsap.quickTo(portrait.current, 'y', { duration: .8, ease: 'power3.out' }), rotation: gsap.quickTo(portrait.current, 'rotation', { duration: .8, ease: 'power3.out' }) };
-      gsap.to('.hero-name', { yPercent: -30, ease: 'none', scrollTrigger: { trigger: ref.current, start: 'top top', end: 'bottom top', scrub: true } });
-      gsap.to('.hero-portrait-reveal', { yPercent: 18, ease: 'none', scrollTrigger: { trigger: ref.current, start: 'top top', end: 'bottom top', scrub: true } });
+      const frame=ref.current.querySelector('.hero-portrait-reveal');
+      const targetWidth=()=>Math.min(window.innerWidth<768?window.innerWidth*.82:window.innerWidth*.48,520,stage.current.clientHeight*.95);
+      const strokes=ref.current.querySelectorAll('.signature-scene .signature-mark path');
+      strokes.forEach(path=>gsap.set(path,{autoAlpha:0,strokeDasharray:path.getTotalLength(),strokeDashoffset:path.getTotalLength()}));
+      let active=false;
+      const progress=scrollProgress.current;
+      gsap.timeline({defaults:{ease:'none'},scrollTrigger:{
+        id:'hero-signature',trigger:ref.current,start:'top top',end:'bottom bottom',scrub:true,invalidateOnRefresh:true,
+        onUpdate:self=>{
+          stage.current.dataset.progress=self.progress.toFixed(3);
+          const next=self.progress>.08;
+          if(next!==active){active=next;setTransitioning(next);}
+        },
+      }})
+        .to(progress,{value:1,duration:.78},0)
+        .to(stage.current,{backgroundColor:'#292f22',duration:.6},0)
+        .to('.organic-contours',{color:'#70834b',opacity:.34,duration:.65},0)
+        .fromTo('.hero-detail, .hero-bottom',{autoAlpha:1,y:0},{autoAlpha:0,y:-30,duration:.16,immediateRender:false},0)
+        .to('.hero-name',{yPercent:-50,autoAlpha:0,duration:.3},0)
+        .to(frame,{scale:()=>targetWidth()/frame.offsetWidth,y:()=>stage.current.clientHeight*.52+targetWidth()*.625/2-stage.current.clientHeight-2,backgroundColor:'#626957',duration:.7,ease:'power1.inOut'},0)
+        .to('.portrait-sequence',{filter:'grayscale(1)',opacity:.65,duration:.7},0)
+        .fromTo('.signature-scene',{autoAlpha:0},{autoAlpha:1,duration:.2},.38)
+        .fromTo('.signature-line-one',{xPercent:15},{xPercent:-12,duration:.6},.4)
+        .fromTo('.signature-line-two',{xPercent:-15},{xPercent:12,duration:.6},.4)
+        .to(strokes,{autoAlpha:1,duration:.03,stagger:.055},.55)
+        .to(strokes,{strokeDashoffset:0,duration:.36,stagger:.055,ease:'power1.inOut'},.55);
     }
-    return () => { pointerFns.current = null; };
+    return () => { pointerFns.current = null; scrollProgress.current.value=0; };
   }, { scope: ref, dependencies: [ready, reduced], revertOnUpdate: true });
   function move(e) {
     if (e.pointerType !== 'mouse' || reduced) return;
-    const box = ref.current.getBoundingClientRect();
+    const box = stage.current.getBoundingClientRect();
+    const imageBox=portrait.current.querySelector('svg').getBoundingClientRect();
+    pointer.current={x:(e.clientX-imageBox.left)/imageBox.width*1600,y:(e.clientY-imageBox.top)/imageBox.height*1000,lastMoved:performance.now()};
     const x = (e.clientX-box.left)/box.width-.5;
     const y = (e.clientY-box.top)/box.height-.5;
-    pointerFns.current?.x(x*25); pointerFns.current?.y(y*10); pointerFns.current?.rotation(x*1.5);
+    const weight=1-scrollProgress.current.value;
+    pointerFns.current?.x(x*25*weight); pointerFns.current?.y(y*10*weight); pointerFns.current?.rotation(x*1.5*weight);
   }
   const togglePortrait = () => { setHovered(false); setLocked(value=>!value); };
-  return <section ref={ref} className="hero" id="home" onPointerMove={move} onPointerLeave={()=>{pointerFns.current?.x(0);pointerFns.current?.y(0);pointerFns.current?.rotation(0);}}>
-    <Contours/>
+  return <section ref={ref} className={`hero-journey ${reduced?'is-reduced':''}`} id="home"><div ref={stage} className="hero" onPointerMove={move} onPointerLeave={()=>{pointerFns.current?.x(0);pointerFns.current?.y(0);pointerFns.current?.rotation(0);}}>
+    <OrganicContours reduced={reduced} suspended={suspended} pointer={pointer}/>
     <div className="hero-detail hero-intro"><span>SOFTWARE ENGINEER</span><span>CURIOUS BY NATURE.<br/>ENGINEER BY TRAINING.</span></div>
     <h1 className="hero-name" aria-label="Ilyass Azyaiz"><span aria-hidden="true" className="serif">ILYASS</span><span aria-hidden="true">AZYAIZ</span></h1>
-    <div className="hero-portrait-reveal"><div ref={portrait} className="hero-portrait" onPointerEnter={e=>{if(e.pointerType==='mouse')setHovered(true);}} onPointerLeave={e=>{if(e.pointerType==='mouse')setHovered(false);}}><PortraitSequence main={mainPortrait} alternate={hoverPortrait} ready={ready} reduced={reduced} hovered={hovered} locked={locked} suspended={suspended}/></div></div>
+    <div className="hero-portrait-reveal"><div ref={portrait} className="hero-portrait" onPointerEnter={e=>{if(e.pointerType==='mouse')setHovered(true);}} onPointerLeave={e=>{if(e.pointerType==='mouse')setHovered(false);}}><PortraitSequence main={mainPortrait} alternate={hoverPortrait} ready={ready} reduced={reduced} hovered={hovered&&!transitioning} locked={locked} suspended={suspended} pointer={pointer} scrollProgress={scrollProgress}/></div></div>
+    <div className="signature-scene" aria-hidden="true"><div className="signature-intro"><Monogram/><span>A NOTE FROM ILYASS</span></div><div className="signature-marquee"><div className="signature-line-one">CURIOUS BY NATURE. CURIOUS BY NATURE.</div><div className="signature-line-two">ENGINEER BY TRAINING. ENGINEER BY TRAINING.</div></div><Signature/></div>
     <div className="hero-detail hero-location"><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><circle cx="20" cy="20" r="15"/><ellipse cx="20" cy="20" rx="7" ry="15"/><path d="M5 20h30M8 11h24M8 29h24"/></svg><span>BASED IN<br/>CASABLANCA, MA</span></div>
-    <div className="hero-bottom"><a href="#about" className="scroll-cue"><span>SCROLL TO EXPLORE</span><Arrow direction="down"/></a><button className="portrait-switch" onClick={togglePortrait} aria-pressed={locked}><span>{locked ? 'BACK TO CASUAL' : 'SWITCH TO WORK MODE'}</span><span className="switch-track"><i/></span></button></div>
-  </section>;
+    <div className="hero-bottom" inert={transitioning&&!reduced}><a href="#about" className="scroll-cue"><span>SCROLL TO EXPLORE</span><Arrow direction="down"/></a><button className="portrait-switch" onClick={togglePortrait} aria-pressed={locked}><span>{locked ? 'BACK TO CASUAL' : 'SWITCH TO WORK MODE'}</span><span className="switch-track"><i/></span></button></div>
+  </div>{reduced&&<div className="signature-static dark-section"><p>CURIOUS BY NATURE.<br/>ENGINEER BY TRAINING.</p><img src={mainPortrait} alt=""/><Signature/></div>}</section>;
 }
 
 function About() {
@@ -186,7 +220,7 @@ function Contact({ replay }) {
   const reset = useRef();
   useEffect(()=>()=>clearTimeout(reset.current),[]);
   const copy = async () => { try { await navigator.clipboard.writeText(email); setCopyState('COPIED!'); } catch { setCopyState('SELECT EMAIL TO COPY'); } clearTimeout(reset.current); reset.current=setTimeout(()=>setCopyState('COPY EMAIL'),2500); };
-  return <footer className="contact" id="contact"><div className="contact-surface dark-section"><Contours/><Monogram className="footer-mark"/><RevealTitle>LET’S BUILD<br/>SOMETHING <em>GOOD.</em></RevealTitle><div className="contact-links"><div><p>HAVE SOMETHING IN MIND?</p><a className="email-link" href={`mailto:${email}`}>{email}<Arrow/></a><button className="copy-email" onClick={copy} aria-live="polite">{copyState}<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M15 8V4H4v11h4"/></svg></button></div><a className="button" href={cvPath} download><RollText>GET MY CV</RollText><Arrow/></a></div><div className="footer-name" aria-hidden="true">ILYASS <em>AZYAIZ</em></div><div className="footer-bottom"><span>© {new Date().getFullYear()} ILYASS AZYAIZ</span><button onClick={replay}>REPLAY INTRO</button><a href="#home">BACK TO TOP <Arrow/></a></div></div></footer>;
+  return <footer className="contact" id="contact"><div className="contact-surface dark-section"><Contours/><Monogram className="footer-mark"/><RevealTitle>LET’S BUILD<br/>SOMETHING <em>GOOD.</em></RevealTitle><div className="contact-links"><div><p>HAVE SOMETHING IN MIND?</p><a className="email-link" href={`mailto:${email}`}>{email}<Arrow/></a><a className="linkedin-link" href={linkedIn} target="_blank" rel="noopener noreferrer">LINKEDIN <Arrow/></a><button className="copy-email" onClick={copy} aria-live="polite">{copyState}<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M15 8V4H4v11h4"/></svg></button></div><a className="button" href={cvPath} download><RollText>GET MY CV</RollText><Arrow/></a></div><div className="footer-name" aria-hidden="true">ILYASS <em>AZYAIZ</em></div><div className="footer-bottom"><span>© {new Date().getFullYear()} ILYASS AZYAIZ</span><button onClick={replay}>REPLAY INTRO</button><a href="#home">BACK TO TOP <Arrow/></a></div></div></footer>;
 }
 
 export default function App() {
@@ -200,7 +234,7 @@ export default function App() {
   useGSAP(() => {
     if (!ready) return;
     const sections = gsap.utils.toArray('.dark-section');
-    const syncHeader = () => { setDark(sections.some(section => {const rect=section.getBoundingClientRect();return rect.top<=55&&rect.bottom>55;})); };
+    const syncHeader = () => { const hero=ref.current.querySelector('.hero');const r=hero.getBoundingClientRect();const heroDark=Number(hero.dataset.progress)>.35&&r.top<=55&&r.bottom>55;setDark(heroDark||sections.some(section => {const rect=section.getBoundingClientRect();return rect.top<=55&&rect.bottom>55;})); };
     const themeTrigger = ScrollTrigger.create({ start:0, end:'max', onUpdate:syncHeader });
     syncHeader();
     if (!reduced) {

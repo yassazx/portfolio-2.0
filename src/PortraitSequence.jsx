@@ -1,97 +1,83 @@
-import { useId, useRef } from 'react';
+﻿import { useId, useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import { blobPath } from './organic';
 
-// Both photographs share the same 1600 × 1000 coordinate system. Only the
-// reveal window moves: translating image fragments would misalign the face.
-function slab({ x, y, thickness, angle }) {
-  if (thickness < .1) return '';
-  const radians = angle * Math.PI / 180;
-  const cos = Math.cos(radians), sin = Math.sin(radians);
-  return [[-1800,-thickness/2],[1800,-thickness/2],[1800,thickness/2],[-1800,thickness/2]]
-    .map(([px,py],i) => `${i ? 'L' : 'M'}${(x+px*cos-py*sin).toFixed(2)},${(y+px*sin+py*cos).toFixed(2)}`).join(' ')+'Z';
-}
-
-export default function PortraitSequence({ main, alternate, ready, reduced, hovered, locked, suspended }) {
-  const root = useRef();
-  const windowPath = useRef();
-  const controls = useRef();
-  const unique = useId().replaceAll(':','');
-  const shapeId = `portrait-window-${unique}`;
-  const maskId = `portrait-base-${unique}`;
-  const clipId = `portrait-overlay-${unique}`;
-
-  useGSAP((context, contextSafe) => {
-    const scanner = { x:800, y:-250, thickness:0, angle:-6 };
-    const strips = Array.from({length:4},()=>({progress:0}));
-    let mode = 'idle';
-    let requested = { hovered:false, locked:false, suspended:false };
-    let inView = true;
-    let introDone = false;
-    let transition;
-    const render = () => {
-      const panels = strips.map(({progress},i) => {
-        if (progress < .0001) return '';
-        const width=1600*progress;
-        const x=i%2 ? 1600-width : 0;
-        return `M${x},${i*250-.5}h${width}v251h${-width}Z`;
-      }).join(' ');
-      windowPath.current?.setAttribute('d',`${slab(scanner)} ${panels}`.trim() || 'M0,0Z');
+export default function PortraitSequence({ main, alternate, ready, reduced, hovered, locked, suspended, pointer, scrollProgress }) {
+  const root=useRef(),windowPath=useRef(),controls=useRef();
+  const unique=useId().replaceAll(':','');
+  const shapeId=`portrait-window-${unique}`,maskId=`portrait-base-${unique}`,clipId=`portrait-overlay-${unique}`;
+  useGSAP((context,contextSafe)=>{
+    const blob={x:800,y:450,radius:0,phase:0};
+    let mode='idle',inView=true,transition,idleTime=0,introPending=true,scrollPaused=false;
+    let requested={hovered:false,locked:false,suspended:false};
+    const render=()=>{
+      const radius=blob.radius*(1-scrollProgress.current.value);
+      windowPath.current?.setAttribute('d',blobPath(blob.x,blob.y,radius,radius*1.13,blob.phase));
       root.current.dataset.phase=mode;
+      root.current.dataset.radius=radius.toFixed(2);
+      root.current.dataset.centerX=blob.x.toFixed(2);
     };
-    const loop = gsap.timeline({paused:true, repeat:-1, onUpdate:render});
-    loop.set(scanner,{x:800,y:-250,thickness:190,angle:-6},0)
-      .to(scanner,{y:1250,angle:6,duration:2.4,ease:'sine.inOut'},0)
-      .set(scanner,{thickness:0},2.4)
-      .set(scanner,{x:100,y:500,angle:65,thickness:0},3.05)
-      .to(scanner,{thickness:540,duration:.45,ease:'expo.inOut'},3.05)
-      .to(scanner,{x:1500,angle:115,duration:1.5,ease:'expo.inOut'},3.05)
-      .to(scanner,{x:450,angle:55,duration:1.5,ease:'expo.inOut'},4.75)
-      .to(scanner,{thickness:0,duration:1,ease:'expo.inOut'},6.3)
-      .set(scanner,{thickness:0},8.3);
-    const stopTransition = () => { transition?.kill(); transition=null; };
-    const clear = contextSafe(() => {
-      loop.pause(); stopTransition(); mode='idle';
-      transition=gsap.timeline({onUpdate:render})
-        .to(scanner,{thickness:0,duration:reduced?0:.6,ease:'expo.inOut'},0)
-        .to(strips,{progress:0,duration:reduced?0:.7,stagger:reduced?0:{each:.09,from:'end'},ease:'expo.inOut'},0);
+    const stop=()=>{transition?.kill();transition=null;};
+    const drift=contextSafe(()=>{
+      stop();mode='drift';idleTime=0;
+      const bounds=root.current.getBoundingClientRect();
+      const left=-bounds.left/bounds.width*1600-420;
+      const right=(window.innerWidth-bounds.left)/bounds.width*1600+420;
+      gsap.set(blob,{x:left,y:390,radius:310});
+      transition=gsap.timeline({repeat:-1,onUpdate:render})
+        .to(blob,{x:right,y:590,duration:4.8,ease:'sine.inOut'},0)
+        .to(blob,{x:left,y:350,duration:4.8,ease:'sine.inOut'},5.4)
+        .to(blob,{y:390,duration:.6,ease:'sine.inOut'},10.2);
     });
-    const sync = contextSafe(() => {
-      const unavailable = !inView || requested.suspended || document.hidden;
-      if (unavailable) { loop.pause(); transition?.pause(); return; }
+    const sync=contextSafe(()=>{
+      if(requested.suspended||!inView||document.hidden||scrollProgress.current.value>.02){transition?.pause();return;}
       transition?.resume();
-      if (requested.locked) {
-        if (mode==='locked') return;
-        loop.pause(); stopTransition(); mode='locked';
-        transition=gsap.timeline({onUpdate:render})
-          .to(scanner,{thickness:0,duration:reduced?0:.35,ease:'power2.out'},0)
-          .to(strips,{progress:1,duration:reduced?0:.9,stagger:reduced?0:.1,ease:'expo.inOut'},0);
-      } else if (requested.hovered && !reduced && ready) {
-        if (mode==='hover') { loop.resume(); return; }
-        stopTransition(); gsap.set(strips,{progress:0});
-        mode='hover'; introDone=true; loop.restart();
-      } else if (mode==='intro' && !introDone) {
-        loop.resume();
-      } else if (mode!=='idle') clear();
-      render();
+      const moving=performance.now()-(pointer.current.lastMoved||0)<2500;
+      const next=requested.locked?'locked':requested.hovered&&moving&&!reduced&&ready?'hover':'idle';
+      if(mode===next||(mode==='intro'||mode==='drift')&&next==='idle')return;
+      stop();mode=next;idleTime=0;
+      if(next==='hover'||next==='locked')introPending=false;
+      transition=gsap.to(blob,{radius:next==='locked'?2100:next==='hover'?290:0,duration:reduced?0:next==='idle'?.8:1.2,ease:'expo.inOut',onUpdate:render});
     });
-    const intro = gsap.delayedCall(1.8,contextSafe(() => {
-      if (!ready || reduced || requested.locked || requested.hovered || requested.suspended || !inView || document.hidden) return;
-      mode='intro'; loop.restart();
+    const tick=(_,delta)=>{
+      if(!inView||document.hidden)return;
+      const scrolled=scrollProgress.current.value>.02;
+      if(scrolled!==scrollPaused){scrollPaused=scrolled;sync();}
+      if(!requested.suspended&&!reduced&&!scrolled&&ready){
+        blob.phase+=Math.min(delta,40)*.00065;
+        const moving=performance.now()-(pointer.current.lastMoved||0)<2500;
+        if(mode==='drift'&&requested.hovered&&moving)sync();
+        if(mode==='hover'&&!moving)sync();
+        if(mode==='idle'&&!introPending){idleTime+=Math.min(delta,40);if(idleTime>1800)drift();}
+        if(mode==='hover'){
+          const damping=1-Math.exp(-Math.min(delta,40)/160);
+          blob.x+=(pointer.current.x-blob.x)*damping;
+          blob.y+=(pointer.current.y-blob.y)*damping;
+        }else if(mode==='locked'){
+          blob.x+=(800-blob.x)*.08;blob.y+=(500-blob.y)*.08;
+        }
+      }
+      render();
+    };
+    const intro=gsap.delayedCall(1.8,contextSafe(()=>{
+      introPending=false;
+      if(!ready||reduced||requested.hovered||requested.locked||requested.suspended||!inView||scrollProgress.current.value>.02)return;
+      mode='intro';
+      transition=gsap.timeline({onUpdate:render,onComplete:()=>{mode='idle';idleTime=0;render();}})
+        .to(blob,{radius:270,x:760,y:380,duration:1.2,ease:'expo.inOut'},0)
+        .to(blob,{x:940,y:630,duration:2.4,ease:'sine.inOut'},.6)
+        .to(blob,{radius:0,duration:1,ease:'expo.inOut'},3.1);
     }));
-    loop.eventCallback('onRepeat',contextSafe(() => {
-      if (mode==='intro') { introDone=true; clear(); }
-    }));
-    const observer = new IntersectionObserver(([entry])=>{inView=entry.isIntersecting;sync();},{threshold:.1});
+    const observer=new IntersectionObserver(([entry])=>{inView=entry.isIntersecting&&entry.intersectionRatio>0;sync();},{threshold:.01});
     observer.observe(root.current);
     document.addEventListener('visibilitychange',sync);
-    controls.current = value => { requested=value; sync(); };
+    gsap.ticker.add(tick);
+    controls.current=value=>{requested=value;sync();};
     render();
-    return () => { intro.kill(); observer.disconnect(); document.removeEventListener('visibilitychange',sync); controls.current=null; };
+    return()=>{intro.kill();gsap.ticker.remove(tick);observer.disconnect();document.removeEventListener('visibilitychange',sync);controls.current=null;};
   },{scope:root,dependencies:[ready,reduced],revertOnUpdate:true});
-
-  useGSAP(() => { controls.current?.({hovered,locked,suspended}); },{dependencies:[hovered,locked,suspended,ready,reduced]});
-
+  useGSAP(()=>{controls.current?.({hovered,locked,suspended});},{dependencies:[hovered,locked,suspended,ready,reduced]});
   return <svg ref={root} className="portrait-sequence" viewBox="0 0 1600 1000" role="img" aria-label="Ilyass Azyaiz" focusable="false">
     <defs>
       <path ref={windowPath} id={shapeId} d="M0,0Z"/>
