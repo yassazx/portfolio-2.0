@@ -118,6 +118,7 @@ a:hover .roll-text>span+span, button:hover .roll-text>span+span { transform: tra
 .hero-portrait-reveal { position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); width: min(110vw,150svh); max-width: none; z-index: 2; transform-origin: bottom center; }
 .hero-portrait { position: relative; transform-origin: 50% 70%; }
 .portrait-sequence { display: block; width: 100%; height: auto; overflow: visible; transform-origin: bottom center; }
+.portrait-photo-switch { display: none; position: absolute; inset: 0; z-index: 1; padding: 0; clip-path: polygon(35% 0,65% 0,72% 45%,82% 100%,18% 100%,28% 45%); }
 .hero-detail { position: absolute; z-index: 4; font-size: 11px; font-weight: 650; line-height: 1.45; }
 .hero-intro { top: 28%; left: 4%; display: flex; flex-direction: column; gap: 18px; }
 .hero-intro>span:first-child { font: 700 20px var(--condensed); }
@@ -129,13 +130,11 @@ a:hover .roll-text>span+span, button:hover .roll-text>span+span { transform: tra
 .scroll-cue .arrow { width: 18px; height: 18px; }
 .cue-arrow { display: grid; place-items: center; }
 .portrait-switch { padding: 12px 15px; background: var(--paper); border-radius: 7px; min-height: 44px; }
-.switch-arrow { display: none; }
 .switch-track { width: 30px; height: 17px; border: 1px solid var(--ink); padding: 2px; border-radius: 20px; display: block; }
 .switch-track i { width: 11px; height: 11px; background: var(--ink); display: block; border-radius: 50%; transition: transform .3s; }
 .portrait-switch[aria-pressed=true] .switch-track { background: var(--lime); }
 .portrait-switch[aria-pressed=true] .switch-track i { transform: translateX(12px); }
 @keyframes cue-bounce-down { 0%, 100% { transform: translateY(-2px); } 50% { transform: translateY(3px); } }
-@keyframes cue-bounce-side { 0%, 100% { transform: translateX(-2px); } 50% { transform: translateX(3px); } }
 
 .about { position: relative; overflow: hidden; padding: 112px 6vw 120px; border-radius: 0 0 50% 50% / 0 0 4% 4%; }
 .about-symbol { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 60px; position: relative; }
@@ -344,17 +343,15 @@ a:hover .roll-text>span+span, button:hover .roll-text>span+span { transform: tra
   .hero-portrait-reveal { width: auto; margin-left: 0; height: 72%; left: 50%; transform: translateX(-50%); aspect-ratio: 1.6; }
   .hero-portrait { height: 100%; }
   .portrait-sequence { height: 100%; width: auto; max-width: none; }
+  .portrait-photo-switch { display: block; }
   .hero-location { top: auto; bottom: 96px; right: 16px; font-size: 9px; color: var(--paper); background: #292f22b8; border-radius: 7px; padding: 7px 9px; }
   .hero-location svg { width: 25px; height: 25px; }
-  .hero-bottom { bottom: max(18px,env(safe-area-inset-bottom)); left: 16px; right: 16px; gap: 10px; align-items: stretch; }
-  .scroll-cue, .portrait-switch { flex: 1; min-width: 0; min-height: 54px; flex-direction: column; justify-content: center; align-items: center; gap: 3px; padding: 6px 9px; border: 1px solid #f5f5ed55; border-radius: 8px; background: #292f22d9; color: var(--paper); font-size: 11px; letter-spacing: .02em; text-align: center; }
-  .scroll-cue .arrow, .switch-arrow .arrow { width: 17px; height: 17px; }
+  .hero-bottom { bottom: max(18px,env(safe-area-inset-bottom)); left: 0; right: 0; justify-content: center; }
+  .scroll-cue { display: grid; place-items: center; width: 48px; height: 48px; min-height: 48px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--lime); }
+  .scroll-cue>span:first-child { display: none; }
+  .scroll-cue .arrow { width: 27px; height: 27px; filter: drop-shadow(0 2px 4px #0008); }
   .cue-arrow { animation: cue-bounce-down 1.65s ease-in-out infinite; }
-  .portrait-switch { max-width: none; }
-  .portrait-switch .switch-track { display: none; }
-  .switch-arrow { display: grid; place-items: center; animation: cue-bounce-side 1.65s ease-in-out infinite; }
-  .switch-arrow .arrow { transform: rotate(45deg); }
-  .portrait-switch[aria-pressed=true] .switch-arrow .arrow { transform: rotate(225deg); }
+  .portrait-switch { display: none; }
   .about { padding: 75px 6vw 75px; border-radius: 0 0 50% 50% / 0 0 2% 2%; }
   .about-symbol { margin-bottom: 40px; gap: 10px; }
   .about-symbol .monogram { width: 48px; height: 48px; }
@@ -452,14 +449,13 @@ a:hover .roll-text>span+span, button:hover .roll-text>span+span { transform: tra
 @media (max-height: 500px) and (max-width: 999px) and (orientation: landscape) {
   .hero { height: 100svh; }
   .hero-intro,.hero-location,.signature-intro { display: none; }
-  .hero-bottom { bottom: 12px; left: 16px; right: 16px; }
-  .scroll-cue, .portrait-switch { min-height: 50px; flex-direction: column; justify-content: center; gap: 2px; padding: 6px 12px; border: 1px solid #f5f5ed55; border-radius: 8px; background: #292f22d9; color: var(--paper); font-size: 11px; text-align: center; }
-  .scroll-cue .arrow, .switch-arrow .arrow { width: 16px; height: 16px; }
+  .portrait-photo-switch { display: block; }
+  .hero-bottom { bottom: 12px; left: 0; right: 0; justify-content: center; }
+  .scroll-cue { display: grid; place-items: center; width: 48px; height: 48px; min-height: 48px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--lime); }
+  .scroll-cue>span:first-child { display: none; }
+  .scroll-cue .arrow { width: 27px; height: 27px; filter: drop-shadow(0 2px 4px #0008); }
   .cue-arrow { animation: cue-bounce-down 1.65s ease-in-out infinite; }
-  .portrait-switch .switch-track { display: none; }
-  .switch-arrow { display: grid; place-items: center; animation: cue-bounce-side 1.65s ease-in-out infinite; }
-  .switch-arrow .arrow { transform: rotate(45deg); }
-  .portrait-switch[aria-pressed=true] .switch-arrow .arrow { transform: rotate(225deg); }
+  .portrait-switch { display: none; }
   .signature-marquee { top: 36%; font-size: 8vw; }
   .signature-scene>.signature-mark { width: 65vw; }
   .menu { padding-top: 85px; padding-bottom: 55px; }

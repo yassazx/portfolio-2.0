@@ -20,6 +20,7 @@ for(const config of [
   await page.locator('.splash').waitFor({state:'detached'});
   await page.waitForTimeout(1600);
   const svg=page.locator('.portrait-sequence'),path=svg.locator('defs>path');
+  const photoSwitch=await page.locator('.portrait-photo-switch').isVisible();
   const d=()=>path.getAttribute('d');
   const radius=async()=>Number(await svg.getAttribute('data-radius'));
   const initialTop=await page.locator('.hero-portrait-reveal').evaluate(el=>el.getBoundingClientRect().top);
@@ -63,10 +64,10 @@ for(const config of [
     check('Reduced motion leaves blob and contours still',await d()==='M0,0Z'&&originalLine===await contour.getAttribute('d'));
     check('Reduced motion retains static signature',await page.locator('.signature-static').count()===1);
   }
-  await page.getByRole('button',{name:'SWITCH TO WORK MODE'}).click();
+  await page.getByRole('button',{name:photoSwitch?'Switch to work mode':'SWITCH TO WORK MODE'}).click();
   await page.waitForTimeout(name==='reduced'?80:1300);
   check(`${name}: work toggle fills mask`,await radius()>=2099);
-  await page.getByRole('button',{name:'BACK TO CASUAL'}).click();
+  await page.getByRole('button',{name:photoSwitch?'Back to casual portrait':'BACK TO CASUAL'}).click();
   await page.waitForTimeout(name==='reduced'?80:1000);
   check(`${name}: casual toggle clears mask`,await radius()===0);
   if(name!=='reduced'){
@@ -89,7 +90,7 @@ for(const config of [
     await page.waitForTimeout(500);
     const returned=await page.locator('.hero-portrait-reveal').evaluate(el=>el.getBoundingClientRect().top);
     check(`${name}: reverse scroll restores initial geometry`,Math.abs(returned-initialTop)<1);
-    check(`${name}: controls return after reverse scroll`,await page.getByRole('button',{name:'SWITCH TO WORK MODE'}).isVisible());
+    check(`${name}: controls return after reverse scroll`,await page.getByRole('button',{name:photoSwitch?'Switch to work mode':'SWITCH TO WORK MODE'}).isVisible());
     await page.locator('#about').evaluate(el=>el.scrollIntoView({behavior:'instant'}));
     await page.waitForTimeout(400);
     const offscreen=await d(),lineOffscreen=await contour.getAttribute('d');
@@ -103,6 +104,7 @@ for(const config of [
     // Locator.hover() can scroll the oversized portrait into view and thereby
     // enter the scroll transition. Exercise an actual stationary pointer.
     await page.mouse.move(740,420);
+    await page.waitForFunction(()=>document.querySelector('.portrait-sequence').dataset.phase==='hover');
     await page.waitForFunction(()=>document.querySelector('.portrait-sequence').dataset.phase==='drift',{},{timeout:8000});
     check('Stationary hover yields to idle sweep',await svg.getAttribute('data-phase')==='drift');
     await page.mouse.move(800,450);
