@@ -52,7 +52,7 @@ function Header({ ready, menuOpen, setMenuOpen, dark, reduced }) {
   const menuTl = useRef();
   const wasOpen = useRef(false);
   useGSAP(() => {
-    menuTl.current = gsap.timeline({ paused: true, onReverseComplete: () => gsap.set(menu.current, { visibility: 'hidden' }) }).fromTo(menu.current, { clipPath: 'ellipse(110% 0% at 50% 0%)' }, { clipPath: 'ellipse(110% 150% at 50% 0%)', duration: reduced ? .01 : .8, ease: 'power4.inOut' }).fromTo('.menu-link', { yPercent: 110, rotate: 3 }, { yPercent: 0, rotate: 0, duration: reduced ? .01 : .7, stagger: reduced ? 0 : .07, ease: 'expo.out' }, reduced ? 0 : .25).fromTo('.menu-portrait', { y: 55, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: reduced ? .01 : .7 }, reduced ? 0 : .25);
+    menuTl.current = gsap.timeline({ paused: true, onReverseComplete: () => gsap.set(menu.current, { visibility: 'hidden' }) }).fromTo(menu.current, { clipPath: 'ellipse(110% 0% at 50% 0%)' }, { clipPath: 'ellipse(110% 150% at 50% 0%)', duration: reduced ? .01 : .8, ease: 'power4.inOut' }).fromTo('.menu-link', { yPercent: 110, rotate: 3 }, { yPercent: 0, rotate: 0, duration: reduced ? .01 : .7, stagger: reduced ? 0 : .07, ease: 'expo.out' }, reduced ? 0 : .25).fromTo('.menu-portrait', { y: 35, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: reduced ? .01 : .8, ease: 'power2.out' }, reduced ? 0 : .08);
   }, { scope: menu, dependencies: [reduced], revertOnUpdate: true });
   useEffect(() => {
     if (menuOpen) {
@@ -99,11 +99,10 @@ function Header({ ready, menuOpen, setMenuOpen, dark, reduced }) {
   </>;
 }
 
-function Hero({ ready, reduced, suspended }) {
+function Hero({ ready, reduced, suspended, pointer }) {
   const ref = useRef();
   const stage = useRef();
   const portrait = useRef();
-  const pointer = useRef({x:800,y:450});
   const scrollProgress = useRef({value:0});
   const [transitioning, setTransitioning] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -113,40 +112,45 @@ function Hero({ ready, reduced, suspended }) {
     if (!ready) return;
     if (!reduced) {
       gsap.from('.portrait-sequence', { yPercent: 12, scale: 1.09, duration: 1.45, ease: 'expo.out' });
-      gsap.from('.hero-detail, .hero-bottom', { autoAlpha: 0, y: 20, duration: .9, delay: .35, ease: 'power3.out' });
-      pointerFns.current = { x: gsap.quickTo(portrait.current, 'x', { duration: .8, ease: 'power3.out' }), y: gsap.quickTo(portrait.current, 'y', { duration: .8, ease: 'power3.out' }), rotation: gsap.quickTo(portrait.current, 'rotation', { duration: .8, ease: 'power3.out' }) };
+      pointerFns.current = { x: gsap.quickTo(portrait.current, 'x', { duration: 1.1, ease: 'sine.out' }), y: gsap.quickTo(portrait.current, 'y', { duration: 1.1, ease: 'sine.out' }), rotation: gsap.quickTo(portrait.current, 'rotation', { duration: 1.1, ease: 'sine.out' }) };
+      const plane=ref.current.parentElement.querySelector('.intro-plane');
+      const contours=plane.querySelector('.organic-contours');
       const frame=ref.current.querySelector('.hero-portrait-reveal');
       const targetWidth=()=>Math.min(window.innerWidth<768?window.innerWidth*.82:window.innerWidth*.48,520,stage.current.clientHeight*.95);
       const strokes=ref.current.querySelectorAll('.signature-scene .signature-mark path');
       strokes.forEach(path=>gsap.set(path,{autoAlpha:0,strokeDasharray:path.getTotalLength(),strokeDashoffset:path.getTotalLength()}));
-      let active=false;
+      let active=false,heroDark=false;
       const progress=scrollProgress.current;
-      gsap.timeline({defaults:{ease:'none'},scrollTrigger:{
-        id:'hero-signature',trigger:ref.current,start:'top top',end:'bottom bottom',scrub:true,invalidateOnRefresh:true,
+      gsap.timeline({defaults:{ease:'none'},onUpdate(){
+        const visualProgress=this.progress();
+        stage.current.dataset.progress=visualProgress.toFixed(3);
+        const nextDark=visualProgress>.35;
+        if(nextDark!==heroDark){heroDark=nextDark;window.dispatchEvent(new Event('hero-theme-change'));}
+      },scrollTrigger:{
+        id:'hero-signature',trigger:ref.current,start:'top top',end:'bottom bottom',scrub:.7,invalidateOnRefresh:true,
         onUpdate:self=>{
-          stage.current.dataset.progress=self.progress.toFixed(3);
           const next=self.progress>.08;
           if(next!==active){active=next;setTransitioning(next);}
         },
       }})
-        .to(progress,{value:1,duration:.78},0)
-        .to(stage.current,{backgroundColor:'#292f22',duration:.6},0)
-        .to('.organic-contours',{color:'#70834b',opacity:.34,duration:.65},0)
-        .fromTo('.hero-detail, .hero-bottom',{autoAlpha:1,y:0},{autoAlpha:0,y:-30,duration:.16,immediateRender:false},0)
-        .to(frame,{scale:()=>targetWidth()/frame.offsetWidth,y:()=>stage.current.clientHeight*.52+targetWidth()*.625/2-stage.current.clientHeight-2,backgroundColor:'#626957',duration:.7,ease:'power1.inOut'},0)
-        .to('.portrait-sequence',{filter:'grayscale(1)',opacity:.65,duration:.7},0)
-        .fromTo('.signature-scene',{autoAlpha:0},{autoAlpha:1,duration:.2},.38)
-        .fromTo('.signature-line-one',{xPercent:15},{xPercent:-12,duration:.6},.4)
-        .fromTo('.signature-line-two',{xPercent:-15},{xPercent:12,duration:.6},.4)
-        .to(strokes,{autoAlpha:1,duration:.03,stagger:.055},.55)
-        .to(strokes,{strokeDashoffset:0,duration:.36,stagger:.055,ease:'power1.inOut'},.55);
+        .to(progress,{value:1,duration:.85},0)
+        .to(plane,{backgroundColor:'#14243a',duration:.55},0)
+        .to(contours,{color:'#6c85b7',duration:.6},0)
+        .fromTo('.hero-detail, .hero-bottom',{autoAlpha:1,y:0},{autoAlpha:0,y:-30,duration:.22,immediateRender:false},0)
+        .to(frame,{scale:()=>targetWidth()/frame.offsetWidth,y:()=>stage.current.clientHeight*.52+targetWidth()*.625/2-stage.current.clientHeight-2,backgroundColor:'#536783',duration:.82,ease:'sine.inOut'},0)
+        .to('.portrait-sequence',{filter:'grayscale(1)',opacity:.65,duration:.8},0)
+        .fromTo('.signature-scene',{autoAlpha:0},{autoAlpha:1,duration:.35},.34)
+        .fromTo('.signature-line-one',{xPercent:15},{xPercent:-12,duration:.75,ease:'sine.inOut'},.38)
+        .fromTo('.signature-line-two',{xPercent:-15},{xPercent:12,duration:.75,ease:'sine.inOut'},.38)
+        .to(strokes,{autoAlpha:1,strokeDashoffset:0,duration:.5,stagger:.045,ease:'sine.inOut'},.5);
     }
     return () => { pointerFns.current = null; scrollProgress.current.value=0; };
   }, { scope: ref, dependencies: [ready, reduced], revertOnUpdate: true });
   function move(e) {
     if (e.pointerType !== 'mouse' || reduced) return;
     const box = stage.current.getBoundingClientRect();
-    const imageBox=portrait.current.querySelector('svg').getBoundingClientRect();
+    // The reveal frame stays still during pointer motion; the portrait itself does not.
+    const imageBox=portrait.current.parentElement.getBoundingClientRect();
     pointer.current={x:(e.clientX-imageBox.left)/imageBox.width*1600,y:(e.clientY-imageBox.top)/imageBox.height*1000,lastMoved:performance.now()};
     const x = (e.clientX-box.left)/box.width-.5;
     const y = (e.clientY-box.top)/box.height-.5;
@@ -155,10 +159,9 @@ function Hero({ ready, reduced, suspended }) {
   }
   const togglePortrait = () => { setHovered(false); setLocked(value=>!value); };
   return <section ref={ref} className={`hero-journey ${reduced?'is-reduced':''}`} id="home"><div ref={stage} className="hero" onPointerMove={move} onPointerLeave={()=>{pointerFns.current?.x(0);pointerFns.current?.y(0);pointerFns.current?.rotation(0);}}>
-    <OrganicContours reduced={reduced} suspended={suspended} pointer={pointer}/>
     <div className="hero-detail hero-intro"><span>SOFTWARE ENGINEER</span><span>CURIOUS BY NATURE.<br/>ENGINEER BY TRAINING.</span></div>
     <h1 className="hero-name" aria-label="Ilyass Azyaiz"/>
-    <div className="hero-portrait-reveal"><div ref={portrait} className="hero-portrait" onPointerEnter={e=>{if(e.pointerType==='mouse')setHovered(true);}} onPointerLeave={e=>{if(e.pointerType==='mouse')setHovered(false);}}><PortraitSequence main={mainPortrait} alternate={hoverPortrait} ready={ready} reduced={reduced} hovered={hovered&&!transitioning} locked={locked} suspended={suspended} pointer={pointer} scrollProgress={scrollProgress}/><button className="portrait-photo-switch" type="button" onClick={togglePortrait} aria-label={locked?'back to work portrait':'SWITCH TO CASUAL MODE'} aria-pressed={locked} disabled={transitioning&&!reduced}/></div></div>
+    <div className="hero-portrait-reveal" onPointerEnter={e=>{if(e.pointerType==='mouse')setHovered(true);}} onPointerLeave={e=>{if(e.pointerType==='mouse')setHovered(false);}}><div ref={portrait} className="hero-portrait"><PortraitSequence main={mainPortrait} alternate={hoverPortrait} ready={ready} reduced={reduced} hovered={hovered&&!transitioning} locked={locked} suspended={suspended} pointer={pointer} scrollProgress={scrollProgress}/><button className="portrait-photo-switch" type="button" onClick={togglePortrait} aria-label={locked?'back to work portrait':'SWITCH TO CASUAL MODE'} aria-pressed={locked} disabled={transitioning&&!reduced}/></div></div>
     <div className="signature-scene" aria-hidden="true"><div className="signature-intro"><Monogram/><span>A NOTE FROM ILYASS</span></div><div className="signature-marquee"><div className="signature-line-one">CURIOUS BY NATURE. CURIOUS BY NATURE.</div><div className="signature-line-two">ENGINEER BY TRAINING. ENGINEER BY TRAINING.</div></div><Signature/></div>
     <div className="hero-detail hero-location"><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><circle cx="20" cy="20" r="15"/><ellipse cx="20" cy="20" rx="7" ry="15"/><path d="M5 20h30M8 11h24M8 29h24"/></svg><span>BASED IN<br/>CASABLANCA, MA</span></div>
     <div className="hero-bottom" inert={transitioning&&!reduced}><a href="#about" className="scroll-cue" aria-label="Scroll to explore"><span>SCROLL TO EXPLORE</span><span className="cue-arrow"><Arrow direction="down"/></span></a><button className="portrait-switch" onClick={togglePortrait} aria-pressed={locked}><span>{locked ? 'back to work' : 'SWITCH TO CASUAL MODE'}</span><span className="switch-track"><i/></span></button></div>
@@ -166,7 +169,12 @@ function Hero({ ready, reduced, suspended }) {
 }
 
 function About() {
-  return <section className="about dark-section" id="about"><Contours/><div className="about-symbol"><Monogram/><span>HELLO. I’M ILYASS.</span></div><RevealTitle className="manifesto">A CURIOUS MIND.<br/>A <em>BUILDER</em> AT HEART.<br/>FROM FIRST LINE<br/>TO <em>FINAL DEPLOY.</em></RevealTitle><div className="about-copy"><span className="about-flourish" aria-hidden="true">ia.</span><p>I’m a software engineer based in Casablanca, working at the intersection of software, data, and cloud. I like connecting the pieces—thoughtful interfaces, useful data, and reliable systems.</p><p>From full-stack applications to automated delivery pipelines, I turn complex problems into things that work.</p></div></section>;
+  return <section className="about dark-section" id="about"><div className="about-symbol"><Monogram/><span>HELLO. I’M ILYASS.</span></div><RevealTitle className="manifesto">A CURIOUS MIND.<br/>A <em>BUILDER</em> AT HEART.<br/>FROM FIRST LINE<br/>TO <em>FINAL DEPLOY.</em></RevealTitle><div className="about-copy"><span className="about-flourish" aria-hidden="true">ia.</span><p>I’m a software engineer based in Casablanca, working at the intersection of software, data, and cloud. I like connecting the pieces—thoughtful interfaces, useful data, and reliable systems.</p><p>From full-stack applications to automated delivery pipelines, I turn complex problems into things that work.</p></div></section>;
+}
+
+function IntroFlow({ready,reduced,suspended}) {
+  const pointer=useRef({x:800,y:450});
+  return <div className="intro-flow"><div className="intro-plane"><OrganicContours reduced={reduced} suspended={suspended} pointer={pointer}/></div><Hero ready={ready} reduced={reduced} suspended={suspended} pointer={pointer}/><About/></div>;
 }
 
 function Work({ ready, reduced }) {
@@ -245,17 +253,17 @@ export default function App() {
           .to(wipes, { scaleX: 0, transformOrigin: 'right', duration: .7, stagger: .08, ease: 'expo.out' }, .4);
       });
       gsap.from('.about-symbol', { scale:.7, rotation:-18, autoAlpha:0, duration:.9, ease:'expo.out',scrollTrigger:{trigger:'.about',start:'top 70%',once:true} });
-      gsap.to('.about .contours', { yPercent:15, ease:'none',scrollTrigger:{trigger:'.about',start:'top bottom',end:'bottom top',scrub:true} });
       gsap.from('.skill', { y:65,autoAlpha:0,duration:1,stagger:.12,ease:'expo.out',scrollTrigger:{trigger:'.skills-grid',start:'top 85%',once:true} });
       gsap.from('.contact-surface', { y:90, duration:1,ease:'expo.out',scrollTrigger:{trigger:'.contact',start:'top 85%',once:true} });
     }
     const refresh = requestAnimationFrame(()=>ScrollTrigger.refresh());
-    return ()=>{cancelAnimationFrame(refresh);themeTrigger.kill();};
+    window.addEventListener('hero-theme-change',syncHeader);
+    return ()=>{cancelAnimationFrame(refresh);window.removeEventListener('hero-theme-change',syncHeader);themeTrigger.kill();};
   }, { scope:ref,dependencies:[ready,reduced],revertOnUpdate:true });
   return <div ref={ref} className={`portfolio ${ready?'is-ready':''}`}>
     <a className="skip-link" href="#about" inert={!ready||menuOpen}>Skip to content</a>
     <Header ready={ready} menuOpen={menuOpen} setMenuOpen={setMenuOpen} dark={dark} reduced={reduced}/>
-    <main inert={!ready||menuOpen}><Hero ready={ready} reduced={reduced} suspended={menuOpen||!ready}/><About/><Work ready={ready} reduced={reduced}/><Background/></main>
+    <main inert={!ready||menuOpen}><IntroFlow ready={ready} reduced={reduced} suspended={menuOpen||!ready}/><Work ready={ready} reduced={reduced}/><Background/></main>
     <div inert={!ready||menuOpen}><Contact replay={()=>{window.scrollTo({top:0,behavior:'instant'});setReady(false);}}/></div>
     {!ready&&<Splash onComplete={finish} reduced={reduced}/>}
   </div>;

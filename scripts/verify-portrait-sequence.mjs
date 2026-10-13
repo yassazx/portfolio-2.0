@@ -26,6 +26,7 @@ for(const config of [
   const initialTop=await page.locator('.hero-portrait-reveal').evaluate(el=>el.getBoundingClientRect().top);
   const contour=page.locator('.organic-contours path').first();
   const originalLine=await contour.getAttribute('d');
+  const initialContourOpacity=await page.locator('.organic-contours').evaluate(el=>Number(getComputedStyle(el).opacity));
   if(name==='desktop'){
     await svg.hover({position:{x:700,y:370}});
     await page.waitForTimeout(1300);
@@ -79,10 +80,15 @@ for(const config of [
       const geometry=await page.locator('.hero-portrait-reveal').evaluate(el=>{const r=el.getBoundingClientRect();return{width:r.width,top:r.top,bottom:r.bottom}});
       widths.push(geometry.width);
       check(`${name}: hero stays pinned at ${fraction}`,await page.locator('.hero').evaluate(el=>Math.abs(el.getBoundingClientRect().top)<2));
+      if(fraction===.5)check(`${name}: hero controls clear for signature`,await page.locator('.hero-bottom').evaluate(el=>Number(getComputedStyle(el).opacity)<.05));
       if(fraction===.5||fraction===1)await page.screenshot({path:`${dir}/${name}-scroll-${fraction}.png`});
     }
     check(`${name}: portrait shrinks with scroll`,widths[0]>widths[1]&&widths[1]>widths[2]&&Math.abs(widths[2]-widths[3])<2);
     check(`${name}: signature fully drawn`,await page.locator('.signature-scene .signature-mark path').evaluateAll(els=>els.every(el=>parseFloat(getComputedStyle(el).strokeDashoffset)<1)));
+    check(`${name}: one contour field spans signature and About`,await page.evaluate(()=>{
+      const plane=document.querySelector('.intro-plane');
+      return document.querySelectorAll('.intro-flow .organic-contours').length===1&&getComputedStyle(plane).backgroundColor===getComputedStyle(document.querySelector('.intro-flow')).backgroundColor;
+    })&&Math.abs(await page.locator('.organic-contours').evaluate(el=>Number(getComputedStyle(el).opacity))-initialContourOpacity)<.01);
     const still=await page.locator('.hero-portrait-reveal').getAttribute('style');
     await page.waitForTimeout(500);
     check(`${name}: transition waits for scroll`,still===await page.locator('.hero-portrait-reveal').getAttribute('style'));
@@ -92,6 +98,11 @@ for(const config of [
     check(`${name}: reverse scroll restores initial geometry`,Math.abs(returned-initialTop)<1);
     check(`${name}: controls return after reverse scroll`,await page.getByRole('button',{name:photoSwitch?'SWITCH TO CASUAL MODE':'SWITCH TO CASUAL MODE'}).isVisible());
     await page.locator('#about').evaluate(el=>el.scrollIntoView({behavior:'instant'}));
+    await page.waitForTimeout(400);
+    const aboutLine=await contour.getAttribute('d');
+    await page.waitForTimeout(300);
+    check(`${name}: same contours keep moving in About`,aboutLine!==await contour.getAttribute('d'));
+    await page.locator('#work').evaluate(el=>el.scrollIntoView({behavior:'instant'}));
     await page.waitForTimeout(400);
     const offscreen=await d(),lineOffscreen=await contour.getAttribute('d');
     await page.waitForTimeout(300);

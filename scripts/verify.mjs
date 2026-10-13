@@ -36,6 +36,11 @@ for (const config of [
   await page.getByRole('button', { name: 'Open navigation' }).click();
   await page.waitForTimeout(1300);
   check(`${name}: menu opens`, await page.getByRole('button', { name: 'Close navigation' }).getAttribute('aria-expanded') === 'true');
+  if (name === 'desktop') check('desktop: menu portrait is visible', await page.locator('.menu-portrait').evaluate(el => {
+    const rect = el.getBoundingClientRect();
+    const style = getComputedStyle(el);
+    return style.display !== 'none' && style.visibility === 'visible' && Number(style.opacity) > .9 && el.querySelector('img').naturalWidth > 0 && rect.width > 300 && rect.left >= 0 && rect.right <= innerWidth;
+  }));
   if (['desktop','mobile'].includes(name)) await page.screenshot({ path: `${output}/${name}-menu.png` });
   await page.keyboard.press('Escape');
   if (!options.reducedMotion) {
